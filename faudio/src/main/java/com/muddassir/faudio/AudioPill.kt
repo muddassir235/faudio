@@ -6,7 +6,7 @@ class AudioPill(var audio: Audio) {
      *
      * @param action The action to perform on the Audio
      */
-    fun changeAudio(action: (Audio)->Audio) {
+    fun act(action: (Audio)->Audio) {
         this.audio = action.invoke(audio)
     }
 }
