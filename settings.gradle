@@ -1,0 +1,3 @@
+include ':faudio'
+include ':app'
+rootProject.name = "functional-audio"
