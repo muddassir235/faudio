@@ -1,7 +1,7 @@
 # Faudio
 [![Release](https://jitpack.io/v/muddassir235/faudio.svg?style=flat-square)](https://jitpack.io/#muddassir235/faudio/)
 
-Android Audio Library written in a Functional programming style in Kotlin. Uses ExoPlayer.
+Android Audio Library, leaning towards a functional programming style, written in Kotlin. Uses ExoPlayer.
 
 ## Unique Features
 * A simple API is provided which leans towards a functional programming style.
