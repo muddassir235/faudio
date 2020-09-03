@@ -64,7 +64,7 @@ audioPill.act{ current ->
   // Any similar custom action can be performed
   
   Audio(
-    prevAudio =current,
+    prevAudio = current,
     uris = current.uris,
     context = current.context,
     audioState = AudioStateInput(
