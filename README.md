@@ -4,7 +4,7 @@
 Android Audio Library written in a Functional programming style in Kotlin. Uses ExoPlayer.
 
 ## Unique Features
-* A functional programming style API is provided
+* A simple API is provided which leans towards a functional programming style.
 * Arbitray functions can be written to perform actions on the audio
 * Hides away all of the video related features of ExoPlayer so you can focus on your audio application.
 
