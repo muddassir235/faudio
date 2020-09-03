@@ -80,5 +80,5 @@ audioPill.act{ current ->
 ## Credits:
 This library used the following projects.
 
-https://github.com/google/ExoPlayer
-https://github.com/muddassir235/kmacros
+* https://github.com/google/ExoPlayer
+* https://github.com/muddassir235/kmacros
