@@ -49,6 +49,15 @@ val prev: ((Audio) -> Audio) = {
     ))
 }
 
+val seekTo = { audio: Audio, millis: Long ->
+    Audio(audio, audio.context, audio.uris, AudioStateInput(
+        audio.audioState.index,
+        false,
+        millis,
+        false
+    ))
+}
+
 val restart: ((Audio) -> Audio) = {
     val prevIndex = (it.audioState.index-1)%it.uris.size
 
