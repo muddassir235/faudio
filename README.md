@@ -55,6 +55,9 @@ audioPill.act(next)
 audioPill.act(prev)
 audioPill.act(restart)
 audioPill.act(shuffle)
+audioPill.act {
+    seekTo(it, 60000)
+}
 ```
 Perform a custom action on your audio using a lambda
 ```kotlin
