@@ -2,33 +2,33 @@ package com.muddassir.faudio
 
 val start: ((Audio) -> Audio) = {
     Audio(it, it.context, it.uris, AudioStateInput(
-        it.audioState.index,
+        it.currentIndex,
         false,
-        it.audioState.progress,
+        it.currentPosition,
         false
     ))
 }
 
 val pause: ((Audio) -> Audio) = {
     Audio(it, it.context, it.uris, AudioStateInput(
-        it.audioState.index,
+        it.currentIndex,
         true,
-        it.audioState.progress,
+        it.currentPosition,
         false
     ))
 }
 
 val stop: ((Audio) -> Audio) = {
     Audio(it, it.context, it.uris, AudioStateInput(
-        it.audioState.index,
+        it.currentIndex,
         true,
-        it.audioState.progress,
+        it.currentPosition,
         true
     ))
 }
 
 val next: ((Audio) -> Audio) = {
-    val nextIndex = (it.audioState.index+1)%it.uris.size
+    val nextIndex = (it.currentIndex+1)%it.uris.size
 
     Audio(it, it.context, it.uris, AudioStateInput(
         nextIndex,
@@ -39,7 +39,7 @@ val next: ((Audio) -> Audio) = {
 }
 
 val prev: ((Audio) -> Audio) = {
-    val prevIndex = (it.audioState.index-1)%it.uris.size
+    val prevIndex = (it.currentIndex-1)%it.uris.size
 
     Audio(it, it.context, it.uris, AudioStateInput(
         prevIndex,
@@ -51,7 +51,7 @@ val prev: ((Audio) -> Audio) = {
 
 val seekTo = { audio: Audio, millis: Long ->
     Audio(audio, audio.context, audio.uris, AudioStateInput(
-        audio.audioState.index,
+        audio.currentIndex,
         false,
         millis,
         false
@@ -78,4 +78,9 @@ val shuffle: ((Audio) -> Audio) = {
         0,
         false
     ))
+}
+
+val addObserver = { audio: Audio, observer: AudioObserver ->
+    audio.observers.add(observer)
+    audio
 }
