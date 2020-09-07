@@ -58,6 +58,17 @@ audioPill.act(shuffle)
 audioPill.act {
     seekTo(it, 60000)
 }
+audioPill.act {
+    addObserver(it) {
+        // it.error
+        // it.stopped
+        // it.paused
+        // it.index
+        // it.progress
+        // it.bufferedPosition
+        // it.duration
+    }
+}
 ```
 Perform a custom action on your audio using a lambda
 ```kotlin
