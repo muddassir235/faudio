@@ -1,5 +1,7 @@
 package com.muddassir.faudio
 
+import java.io.Serializable
+
 data class AudioStateInput(
     val index   : Int,
     val paused  : Boolean,
@@ -8,11 +10,11 @@ data class AudioStateInput(
 )
 
 data class AudioObservation(
-    val error           : String?,
-    val stopped         : Boolean?,
-    val paused          : Boolean?,
-    val index           : Int?,
-    val progress        : Long?,
-    val bufferedPosition: Long?,
-    val duration        : Long?
-)
+    val error           : String? = null,
+    val stopped         : Boolean? = null,
+    val paused          : Boolean? = null,
+    val index           : Int? = null,
+    val progress        : Long? = null,
+    val bufferedPosition: Long? = null,
+    val duration        : Long? = null
+): Serializable
