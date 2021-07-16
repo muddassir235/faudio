@@ -3,6 +3,8 @@
 
 Android Audio Library, leaning towards a functional programming style, written in Kotlin. Written on top of [ExoPlayer](https://github.com/google/ExoPlayer).
 
+Used in https://play.google.com/store/apps/details?id=com.muddassirkhan.quran_android
+
 ## Unique Features
 * A simple API is provided which leans towards a functional programming style.
 * A range of arbitray custom functions can be written to perform actions on the audio.
@@ -22,7 +24,7 @@ allprojects {
 and the following in your app level build.gradle
 ```groovy
 dependencies {
-    implementation 'com.github.muddassir235:faudio:1.4'
+    implementation 'com.github.muddassir235:faudio:1.5'
 }
 ```
 
@@ -58,6 +60,17 @@ audioPill.act(shuffle)
 audioPill.act {
     seekTo(it, 60000)
 }
+audioPill.act {
+    addObserver(it) { observation ->
+        // observation.error
+        // observation.stopped
+        // observation.paused
+        // observation.index
+        // observation.progress
+        // observation.bufferedPosition
+        // observation.duration
+    }
+}
 ```
 Perform a custom action on your audio using a lambda
 ```kotlin
@@ -85,3 +98,14 @@ This library used the following projects.
 
 * https://github.com/google/ExoPlayer
 * https://github.com/muddassir235/kmacros
+
+## [Apps by Muddassir Ahmed](https://play.google.com/store/apps/developer?id=Muddassir+Khan):
+* https://play.google.com/store/apps/details?id=com.muddassirkhan.quran_android
+* https://play.google.com/store/apps/details?id=com.app.kitaabattawheed
+
+
+## Muddassir Ahmed Links:
+
+* https://www.linkedin.com/in/muddassir35/
+* https://muddassirahmed.medium.com/
+* https://stackoverflow.com/users/5841416/muddassir-ahmed
