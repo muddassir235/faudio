@@ -9,15 +9,15 @@ import com.google.android.exoplayer2.Timeline
 import com.muddassir.kmacros.delay
 import com.muddassir.kmacros.safe
 
-class Audio(prevAudio: Audio?, val context: Context, val uris: Array<Uri>,
-            val audioState: AudioStateInput): Player.EventListener,
+class Audio(prevAudio: Audio? = null, val context: Context, val uris: Array<Uri>,
+            val audioState: AudioStateInput): Player.Listener,
     AudioManager.OnAudioFocusChangeListener {
     val observers: HashSet<AudioObserver> = HashSet()
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var inFocus = audioManager.gainFocus(this)
 
-    private val ap: AudioProducer = AudioProducerBuilder(context).build()
+    private val ap: AudioProducer = prevAudio?.ap ?: AudioProducerBuilder(context).build()
 
     private var startWhenReady : Boolean get() = ap.playWhenReady
         set(value) {
@@ -26,12 +26,24 @@ class Audio(prevAudio: Audio?, val context: Context, val uris: Array<Uri>,
         }
 
     init {
-        prevAudio?.release()
+        if(!prevAudio?.uris.contentEquals(uris)) {
+            ap.release()
+            ap.setMediaSource(mediaSourceFromUrls(context, uris))
+            ap.prepare()
+        }
 
-        ap.prepare(mediaSourceFromUrls(context, uris))
         ap.addListener(this)
-        ap.seekTo(audioState.index, audioState.progress)
-        this.startWhenReady = !audioState.paused
+
+        if(prevAudio?.currentIndex == audioState.index) {
+            ap.seekTo(audioState.progress)
+        } else {
+            ap.seekTo(audioState.index, audioState.progress)
+        }
+
+        if(prevAudio?.started == audioState.paused) {
+            this.startWhenReady = !audioState.paused
+        }
+        
         if(audioState.stopped) ap.stop()
 
         this.invokeAudioObservers()
@@ -63,11 +75,13 @@ class Audio(prevAudio: Audio?, val context: Context, val uris: Array<Uri>,
     }
     override fun onPlayerError(error: ExoPlaybackException)  { this.invokeAudioObservers()  }
     override fun onPositionDiscontinuity(reason: Int) {
-        if(reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
+        if(reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
+            || reason == Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT
             || reason == Player.DISCONTINUITY_REASON_SEEK) this.invokeAudioObservers()
     }
     override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-        if(reason == Player.TIMELINE_CHANGE_REASON_DYNAMIC) this.invokeAudioObservers()
+        if(reason == Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE
+            || reason == Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE) this.invokeAudioObservers()
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
