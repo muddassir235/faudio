@@ -26,7 +26,7 @@ class Audio(prevAudio: Audio? = null, val context: Context, val uris: Array<Uri>
         }
 
     init {
-        if(!prevAudio?.uris.contentEquals(uris)) {
+        if(prevAudio == null || !prevAudio.uris.contentEquals(uris)) {
             ap.release()
             ap.setMediaSource(mediaSourceFromUrls(context, uris))
             ap.prepare()
