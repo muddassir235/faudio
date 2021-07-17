@@ -40,7 +40,7 @@ class Audio(prevAudio: Audio? = null, val context: Context, val uris: Array<Uri>
             ap.seekTo(audioState.index, audioState.progress)
         }
 
-        if(prevAudio?.started == audioState.paused) {
+        if(prevAudio == null || prevAudio.started == audioState.paused) {
             this.startWhenReady = !audioState.paused
         }
         
