@@ -24,7 +24,7 @@ allprojects {
 and the following in your app level build.gradle
 ```groovy
 dependencies {
-    implementation 'com.github.muddassir235:faudio:1.5'
+    implementation 'com.github.muddassir235:faudio:1.6'
 }
 ```
 
@@ -32,7 +32,6 @@ dependencies {
 Create an audio pill with a starting state
 ```kotlin
 val audioPill = AudioPill(Audio(
-    prevAudio = null,
     uris = uris(
         "https://site.com/track1.mp3", 
         "https://site.com/track2.mp3", 
