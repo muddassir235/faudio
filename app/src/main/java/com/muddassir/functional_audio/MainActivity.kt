@@ -19,36 +19,6 @@ class MainActivity : AppCompatActivity() {
         audioLibrary()
     }
 
-    private fun audioProducer() {
-        val uris = arrayOf(
-            Uri.parse("https://server11.mp3quran.net/sds/001.mp3"),
-            Uri.parse("https://server11.mp3quran.net/sds/002.mp3"),
-            Uri.parse("https://server11.mp3quran.net/sds/003.mp3")
-        )
-
-        val producer = AudioProducerBuilder(this).build()
-        producer.setMediaItems(uris.map{ MediaItem.fromUri(it) })
-        producer.prepare()
-
-        lifecycleScope.launch {
-            withContext(Dispatchers.Main) {
-                producer.play()
-            }
-
-            delay(10000)
-
-            withContext(Dispatchers.Main) {
-                producer.stop()
-            }
-
-            delay(10000)
-
-            withContext(Dispatchers.Main) {
-                producer.play()
-            }
-        }
-    }
-
     private fun audioLibrary() {
         val uris = arrayOf(
             Uri.parse("https://server11.mp3quran.net/sds/001.mp3"),

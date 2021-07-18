@@ -5,9 +5,9 @@ import android.media.AudioManager
 import android.media.AudioManager.*
 import com.muddassir.kmacros.delay
 
-enum class FocusAudioAction { STOP, PAUSE, RESUME }
+internal class FocusManager(context: Context, private val performAudioAction: (FocusAudioAction) -> Unit) {
+    enum class FocusAudioAction { STOP, PAUSE, RESUME }
 
-class FocusManager(context: Context, private val performAudioAction: (FocusAudioAction) -> Unit) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private var _focused = false

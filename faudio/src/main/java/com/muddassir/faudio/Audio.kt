@@ -8,14 +8,15 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import com.muddassir.faudio.FocusManager.FocusAudioAction.*
 
 class Audio(private val context: Context, private val scope: CoroutineScope) {
     private var ap = AudioProducerBuilder(context).build()
     private val fm = FocusManager(context) {
         when(it) {
-            FocusAudioAction.STOP -> ap.stop()
-            FocusAudioAction.PAUSE -> ap.pause()
-            FocusAudioAction.RESUME -> ap.resume()
+            STOP -> ap.stop()
+            PAUSE -> ap.pause()
+            RESUME -> ap.resume()
         }
     }
 

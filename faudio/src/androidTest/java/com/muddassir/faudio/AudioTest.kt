@@ -155,13 +155,7 @@ class AudioTest {
         }
     }
 
-    fun ui( action:(suspend () -> Unit)) {
-        GlobalScope.launch(Dispatchers.Main) {
-            action()
-        }
-    }
-
-    fun background( action:(suspend () -> Unit)) {
+    private fun background( action:(suspend () -> Unit)) {
         GlobalScope.launch(Dispatchers.IO) {
             action()
         }
