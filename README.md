@@ -59,6 +59,7 @@ lifecycleScope.launch {
         moveToIndex(it, 3)
     }
 }
+```
 ```kotlin
 // On the main thread
 audio.changeStateAsync(start) { success ->
@@ -76,8 +77,10 @@ audio.changeStateAsync({
 audio.changeStateAsync({
     moveToIndex(it, 3)
 })
+```
 
-### Custom action
+### Custom actions
+
 Perform a custom action on your audio using a lambda
 ```kotlin
 audio.changeState{ actualState ->
