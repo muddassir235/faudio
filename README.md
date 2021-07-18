@@ -58,6 +58,7 @@ lifecycleScope.launch {
         moveToIndex(it, 3)
     }
 }
+```
 ```kotlin
 // On the main thread
 audio.changeStateAsync(start) { success ->
