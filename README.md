@@ -76,7 +76,7 @@ audio.changeStateAsync({
 audio.changeStateAsync({
     moveToIndex(it, 3)
 })
-
+```
 Perform a custom action on your audio using a lambda
 ```kotlin
 audio.changeState{ actualState ->
