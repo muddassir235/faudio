@@ -41,8 +41,9 @@ audio.setStateAsync(ExpectedState.defaultStateWithUris(uris))
 
 ### Available audio actions
 Perform any common action on your audio
+
+Using coroutines
 ```kotlin
-// Using coroutines
 lifecycleScope.launch {
     // The changeState method returns if the operation was successful.
     val success = audio.changeState(start)
@@ -60,8 +61,9 @@ lifecycleScope.launch {
     }
 }
 ```
+
+On the main thread
 ```kotlin
-// On the main thread
 audio.changeStateAsync(start) { success ->
     // Check the operation completion status if required.
 }
@@ -110,6 +112,7 @@ audio.audioState.observer(lifecycleScope) { actualState ->
     // actualState.stopped, actualState.error
 }
 ```
+
 State diffs
 ```kotlin
 audio.audioStateDiff.observer(lifecycleScope) { audioStateDiff ->
