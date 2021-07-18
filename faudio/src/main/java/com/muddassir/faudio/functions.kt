@@ -1,86 +1,119 @@
 package com.muddassir.faudio
 
-val start: ((Audio) -> Audio) = {
-    Audio(it, it.context, it.uris, AudioStateInput(
-        it.currentIndex,
+val start: ((AudioState) -> AudioState) = {
+    AudioState(
+        it.uris,
+        it.index,
         false,
-        it.currentPosition,
-        false
-    ))
+        it.progress,
+        it.speed,
+        it.bufferedPosition,
+        it.currentIndexDuration,
+        false,
+        it.error
+    )
 }
 
-val pause: ((Audio) -> Audio) = {
-    Audio(it, it.context, it.uris, AudioStateInput(
-        it.currentIndex,
+val pause: ((AudioState) -> AudioState) = {
+    AudioState(
+        it.uris,
+        it.index,
         true,
-        it.currentPosition,
-        false
-    ))
+        it.progress,
+        it.speed,
+        it.bufferedPosition,
+        it.currentIndexDuration,
+        false,
+        it.error
+    )
 }
 
-val stop: ((Audio) -> Audio) = {
-    Audio(it, it.context, it.uris, AudioStateInput(
-        it.currentIndex,
+val stop: ((AudioState) -> AudioState) = {
+    AudioState(
+        it.uris,
+        it.index,
         true,
-        it.currentPosition,
-        true
-    ))
+        0,
+        it.speed,
+        it.bufferedPosition,
+        it.currentIndexDuration,
+        true,
+        it.error
+    )
 }
 
-val next: ((Audio) -> Audio) = {
-    val nextIndex = (it.currentIndex+1)%it.uris.size
+val next: ((AudioState) -> AudioState) = {
+    val nextIndex = (it.index+1)%it.uris.size
 
-    Audio(it, it.context, it.uris, AudioStateInput(
+    AudioState(
+        it.uris,
         nextIndex,
         false,
         0,
-        false
-    ))
+        it.speed,
+        it.bufferedPosition,
+        it.currentIndexDuration,
+        false,
+        it.error
+    )
 }
 
-val prev: ((Audio) -> Audio) = {
-    val prevIndex = (it.currentIndex-1)%it.uris.size
+val prev: ((AudioState) -> AudioState) = {
+    val prevIndex = (it.index-1)%it.uris.size
 
-    Audio(it, it.context, it.uris, AudioStateInput(
+    AudioState(
+        it.uris,
         prevIndex,
         false,
         0,
-        false
-    ))
+        it.speed,
+        it.bufferedPosition,
+        it.currentIndexDuration,
+        false,
+        it.error
+    )
 }
 
-val seekTo = { audio: Audio, millis: Long ->
-    Audio(audio, audio.context, audio.uris, AudioStateInput(
-        audio.currentIndex,
+val seekTo = { currentState: AudioState, millis: Long ->
+    AudioState(
+        currentState.uris,
+        currentState.index,
         false,
         millis,
-        false
-    ))
+        currentState.speed,
+        currentState.bufferedPosition,
+        currentState.currentIndexDuration,
+        false,
+        currentState.error
+    )
 }
 
-val restart: ((Audio) -> Audio) = {
-    val prevIndex = (it.audioState.index-1)%it.uris.size
-
-    Audio(it, it.context, it.uris, AudioStateInput(
-        prevIndex,
+val restart: ((AudioState) -> AudioState) = {
+    AudioState(
+        it.uris,
+        it.index,
         false,
         0,
-        false
-    ))
+        it.speed,
+        it.bufferedPosition,
+        it.currentIndexDuration,
+        false,
+        it.error
+    )
 }
 
-val shuffle: ((Audio) -> Audio) = {
+val shuffle: ((AudioState) -> AudioState) = {
     val randIndex = it.uris.indices.shuffled().last()
 
-    Audio(it, it.context, it.uris, AudioStateInput(
+    AudioState(
+        it.uris,
         randIndex,
         false,
         0,
-        false
-    ))
-}
-
-val addObserver = { audio: Audio, observer: AudioObserver ->
-    audio.observers.add(observer)
-    audio
+        it.speed,
+        it.bufferedPosition,
+        it.currentIndexDuration,
+        false,
+        it.error
+    )
 }

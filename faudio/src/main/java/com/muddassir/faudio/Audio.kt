@@ -1,120 +1,126 @@
 package com.muddassir.faudio
 
 import android.content.Context
-import android.media.AudioManager
-import android.net.Uri
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
-import com.muddassir.kmacros.delay
-import com.muddassir.kmacros.safe
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
-class Audio(prevAudio: Audio? = null, val context: Context, val uris: Array<Uri>,
-            val audioState: AudioStateInput): Player.Listener,
-    AudioManager.OnAudioFocusChangeListener {
-    val observers: HashSet<AudioObserver> = HashSet()
-
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private var inFocus = audioManager.gainFocus(this)
-
-    private val ap: AudioProducer = prevAudio?.ap ?: AudioProducerBuilder(context).build()
-
-    private var startWhenReady : Boolean get() = ap.playWhenReady
-        set(value) {
-            if(inFocus || !value) ap.playWhenReady = value
-            else { this.invokeAudioObservers("Focus Gain Failed.") }
+class Audio(private val context: Context, private val scope: CoroutineScope) {
+    private var ap = AudioProducerBuilder(context).build()
+    private val fm = FocusManager(context) {
+        when(it) {
+            AudioAction.STOP -> ap.stop()
+            AudioAction.PAUSE -> ap.pause()
+            AudioAction.RESUME -> ap.resume()
         }
+    }
+
+    private val _audioState = MutableLiveData<AudioState>()
+    val audioState: LiveData<AudioState> = _audioState
 
     init {
-        if(prevAudio == null || !prevAudio.uris.contentEquals(uris)) {
-            ap.release()
-            ap.setMediaSource(mediaSourceFromUrls(context, uris))
-            ap.prepare()
-        }
-
-        ap.addListener(this)
-
-        if(prevAudio?.currentIndex == audioState.index) {
-            ap.seekTo(audioState.progress)
-        } else {
-            ap.seekTo(audioState.index, audioState.progress)
-        }
-
-        if(prevAudio == null || prevAudio.started == audioState.paused) {
-            this.startWhenReady = !audioState.paused
-        }
-        
-        if(audioState.stopped) ap.stop()
-
-        this.invokeAudioObservers()
+        trackProgress()
     }
 
-    val currentIndex    : Int     get() = ap.currentWindowIndex
-    val started         : Boolean get() = ap.playbackState == Player.STATE_READY && startWhenReady
-    val currentPosition : Long    get() = ap.currentPosition
-    private val duration        : Long    get() = ap.duration
-    private val bufferedPosition: Long    get() = ap.bufferedPosition
-    val stopped         : Boolean get() = ap.playbackState == Player.STATE_IDLE
-    val error           : String? get() = ap.playbackError?.localizedMessage
+    suspend fun setState(newState: AudioState): Boolean {
+        withContext(Dispatchers.Main) {
+            val currState = ap.audioState
 
-    private fun invokeAudioObservers(error: String?) {
-        safe { observers.forEach { o -> o.invoke(
-            AudioObservation(
-                error, this.stopped,
-                !this.started, this.currentIndex, this.currentPosition, this.bufferedPosition,
-                this.duration
-            )
-        ) } }
-    }
+            // uris
+            if (!newState.uris.contentEquals(currState.uris)) ap.setUris(newState.uris)
 
-    private fun invokeAudioObservers() { this.invokeAudioObservers(error) }
+            // stopped
+            if (newState.stopped != currState.stopped) {
+                if (newState.stopped) {
+                    ap.release()
 
-    override fun onIsPlayingChanged(isPlaying: Boolean)      { this.invokeAudioObservers() }
-    override fun onPlayerStateChanged(pwr: Boolean, ps: Int) {
-        if(started and !stopped) trackProgress()
-    }
-    override fun onPlayerError(error: ExoPlaybackException)  { this.invokeAudioObservers()  }
-    override fun onPositionDiscontinuity(reason: Int) {
-        if(reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
-            || reason == Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT
-            || reason == Player.DISCONTINUITY_REASON_SEEK) this.invokeAudioObservers()
-    }
-    override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-        if(reason == Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE
-            || reason == Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE) this.invokeAudioObservers()
-    }
+                    ap = AudioProducerBuilder(context).build()
+                    ap.setUris(newState.uris)
+                } else {
+                    if(newState.paused) {
+                        ap.pause()
+                    } else {
+                        ap.startCheckFocus(fm.focused)
+                    }
+                }
+            }
 
-    override fun onAudioFocusChange(focusChange: Int) {
-        if(this.stopped) return
+            // paused
+            if (newState.paused != currState.paused) {
+                if(newState.paused) {
+                    ap.pause()
+                } else {
+                    ap.startCheckFocus(fm.focused)
+                }
+            }
 
-        if(focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-            || focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            this.inFocus = false
-            this.startWhenReady = false
-        } else if(focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            this.inFocus = true
-            this.startWhenReady = true
-        }
-    }
+            // index, progress
+            when {
+                newState.index != currState.index -> ap.seekTo(newState.index, newState.progress)
+                newState.progress != currState.progress -> ap.seekTo(newState.progress)
+            }
 
-    fun release() {
-        this.ap.release()
-        this.observers.clear()
-    }
-
-    private val progressInterval: Long get() {
-        val millisToNextTick = 1000 - this.currentPosition % 1000
-        return if (millisToNextTick < 200) millisToNextTick + 1000 else millisToNextTick
-    }
-
-    private fun trackProgress() {
-        fun noteProgress() {
-            this.invokeAudioObservers()
-            if (this.started) {
-                delay(progressInterval) { noteProgress() }
+            // speed
+            if (newState.speed != currState.speed) {
+                ap.setPlaybackSpeed(newState.speed)
             }
         }
 
-        noteProgress()
+        repeat(15) {
+            delay(200)
+            if(audioState.value == newState) return true
+        }
+
+        if(BuildConfig.DEBUG) {
+            Log.e(
+                Audio::class.simpleName,
+                """
+                Unmatched states: 
+                
+                *********
+                actual   : ${audioState.value}
+                expected : $newState
+                *********
+                """.trimIndent()
+            )
+        }
+
+        return audioState.value == newState
     }
+
+    fun setStateAsync(newState: AudioState, callback: ((Boolean)->Unit)? = null) {
+        flow {
+            emit(setState(newState))
+        }.onEach {
+            callback?.invoke(it)
+        }.launchIn(scope)
+    }
+
+    suspend fun changeState(action: (AudioState) -> AudioState): Boolean {
+        val newState = this.audioState.value?.change(action) ?: return false
+        return this.setState(newState)
+    }
+
+    fun changeStateAsync(action: (AudioState) -> AudioState, callback: ((Boolean)->Unit)? = null) {
+        flow {
+            emit(changeState(action))
+        }.onEach {
+            callback?.invoke(it)
+        }.launchIn(scope)
+    }
+
+    private fun trackProgress() = scope.launch {
+        while (true) {
+            withContext(Dispatchers.Main) {
+                _audioState.value = ap.audioState
+            }
+            delay(200)
+        }
+    }
+
+    fun release() = this.ap.release()
 }
