@@ -13,9 +13,9 @@ Used in https://play.google.com/store/apps/details?id=com.muddassirkhan.quran_an
 ## Requirements:
 * Android 5+
 * Lifecycle Runtime
-```groovy
-implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lastest_version"
-```
+    ```groovy
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lastest_version"
+    ```
 
 ## Add Dependencies
 Add the following in your project level build.gradle
