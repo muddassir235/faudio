@@ -39,6 +39,7 @@ val audio = Audio(context = this, scope = lifecycleScope)
 audio.setStateAsync(ExpectedState.defaultStateWithUris(uris))
 ```
 
+### Available audio actions
 Perform any common action on your audio
 ```kotlin
 // Using coroutines
@@ -76,6 +77,7 @@ audio.changeStateAsync({
     moveToIndex(it, 3)
 })
 
+### Custom action
 Perform a custom action on your audio using a lambda
 ```kotlin
 audio.changeState{ actualState ->
@@ -92,7 +94,10 @@ audio.changeState{ actualState ->
   )
 }
 ```
-Observe audio state
+### Observe state
+Observe the audio state or state diffs on every change of state.
+
+State changes
 ```kotlin
 audio.audioState.observer(lifecycleScope) { actualState ->
     // Your logic here
@@ -101,7 +106,9 @@ audio.audioState.observer(lifecycleScope) { actualState ->
     // actualState.speed, actualState.bufferedPosition, actualState.currentIndexDuration,
     // actualState.stopped, actualState.error
 }
-
+```
+State diffs
+```kotlin
 audio.audioStateDiff.observer(lifecycleScope) { audioStateDiff ->
     // Your logic here
     // Fields available...
@@ -109,22 +116,20 @@ audio.audioStateDiff.observer(lifecycleScope) { audioStateDiff ->
     // audioStateDiff.next Next state
     // audioStateDiff.audioStateChangeKey (Can be one of the those defined in AudioStateChangeKeys)
 }
-
-class AudioStateChangeKeys {
-    companion object {
-        val START = "start"
-        val PAUSE = "pause"
-        val STOP  = "stop"
-        val NEXT  = "next"
-        val PREV  = "prev"
-        val SEEK  = "seek"
-        val MOVE_TO_INDEX = "change_position"
-        val RESTART = "restart"
-        const val URIS_CHANGED = "uris_changed"
-        val UNCHANGED = "unchanged"
-        val UNKNOWN = "unknown"
-    }
-}
+```
+The following are the available state change keys
+```kotlin
+AudioStateChangeKeys.START
+AudioStateChangeKeys.PAUSE
+AudioStateChangeKeys.STOP
+AudioStateChangeKeys.NEXT
+AudioStateChangeKeys.PREV
+AudioStateChangeKeys.SEEK
+AudioStateChangeKeys.MOVE_TO_INDEX
+AudioStateChangeKeys.RESTART
+AudioStateChangeKeys.URIS_CHANGED
+AudioStateChangeKeys.UNCHANGED
+AudioStateChangeKeys.UNKNOWN
 ```
 
 ## Credits:

@@ -38,17 +38,17 @@ val Audio.audioStateDiff: LiveData<AudioStateDiff> get() {
 
 class AudioStateChangeKeys {
     companion object {
-        val START = "start"
-        val PAUSE = "pause"
-        val STOP  = "stop"
-        val NEXT  = "next"
-        val PREV  = "prev"
-        val SEEK  = "seek"
-        val MOVE_TO_INDEX = "change_position"
-        val RESTART = "restart"
+        const val START = "start"
+        const val PAUSE = "pause"
+        const val STOP  = "stop"
+        const val NEXT  = "next"
+        const val PREV  = "prev"
+        const val SEEK  = "seek"
+        const val MOVE_TO_INDEX = "change_position"
+        const val RESTART = "restart"
         const val URIS_CHANGED = "uris_changed"
-        val UNCHANGED = "unchanged"
-        val UNKNOWN = "unknown"
+        const val UNCHANGED = "unchanged"
+        const val UNKNOWN = "unknown"
     }
 }
 
