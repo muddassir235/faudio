@@ -1,15 +1,11 @@
 package com.muddassir.functional_audio
 
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.exoplayer2.MediaItem
 import com.muddassir.faudio.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,10 +16,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun audioLibrary() {
-        val uris = arrayOf(
-            Uri.parse("https://server11.mp3quran.net/sds/001.mp3"),
-            Uri.parse("https://server11.mp3quran.net/sds/002.mp3"),
-            Uri.parse("https://server11.mp3quran.net/sds/003.mp3")
+        val uris = uris(
+            "https://server11.mp3quran.net/sds/001.mp3",
+            "https://server11.mp3quran.net/sds/002.mp3",
+            "https://server11.mp3quran.net/sds/003.mp3"
         )
 
         val audio = Audio(this, lifecycleScope)

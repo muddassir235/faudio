@@ -31,10 +31,10 @@ class TestAudioState {
 
         PowerMockito.`when`<Any>(Uri::class.java, "parse", anyString()).thenReturn(uri)
 
-        val uris = arrayOf(
-            Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-5.mp3"),
-            Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-0.mp3"),
-            Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-0.mp3")
+        val uris = uris(
+            "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-5.mp3",
+            "https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-0.mp3",
+            "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-0.mp3"
         )
 
         audioState = ActualState(

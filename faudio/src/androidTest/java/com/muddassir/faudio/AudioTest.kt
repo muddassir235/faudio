@@ -1,6 +1,5 @@
 package com.muddassir.faudio
 
-import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import junit.framework.Assert.assertTrue
@@ -12,7 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-const val repetitions = 5
+const val repetitions = 3
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -113,10 +112,10 @@ class AudioTest {
     @Repeat(repetitions)
     fun testAudioChangeUris() {
         afterAudioStart {
-            val otherUris = arrayOf(
-                Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-5.mp3"),
-                Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-0.mp3"),
-                Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-0.mp3")
+            val otherUris = uris(
+                "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-5.mp3",
+                "https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-0.mp3",
+                "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-0.mp3"
             )
 
             background {
@@ -139,10 +138,10 @@ class AudioTest {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             audio = Audio(context, GlobalScope)
 
-            val uris = arrayOf(
-                Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_biased/sample-5.mp3"),
-                Uri.parse("https://www.guggenheim.org/wp-content/uploads/2018/02/110443.mp3"),
-                Uri.parse("https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-1.mp3")
+            val uris = uris(
+                "https://audio-samples.github.io/samples/mp3/blizzard_biased/sample-5.mp3",
+                "https://www.guggenheim.org/wp-content/uploads/2018/02/110443.mp3",
+                "https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-1.mp3"
             )
 
             background {
