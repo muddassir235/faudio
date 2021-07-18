@@ -14,7 +14,7 @@ Used in https://play.google.com/store/apps/details?id=com.muddassirkhan.quran_an
 * Android 5+
 * Lifecycle Runtime
     ```groovy
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lastest_version"
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:$lastest_version'
     ```
 
 ## Add Dependencies
