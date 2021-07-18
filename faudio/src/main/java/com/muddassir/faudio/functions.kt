@@ -1,86 +1,112 @@
 package com.muddassir.faudio
 
-val start: ((Audio) -> Audio) = {
-    Audio(it, it.context, it.uris, AudioStateInput(
-        it.currentIndex,
-        false,
-        it.currentPosition,
-        false
-    ))
+import android.net.Uri
+import com.google.android.exoplayer2.MediaItem
+
+val start: ((ActualState) -> ExpectedState) = {
+    ExpectedState(
+        uris = it.uris,
+        index = it.index,
+        paused = false,
+        progress = it.progress,
+        speed = it.speed,
+        stopped = false
+    )
 }
 
-val pause: ((Audio) -> Audio) = {
-    Audio(it, it.context, it.uris, AudioStateInput(
-        it.currentIndex,
-        true,
-        it.currentPosition,
-        false
-    ))
+val pause: ((ActualState) -> ExpectedState) = {
+    ExpectedState(
+        uris = it.uris,
+        index = it.index,
+        paused = true,
+        progress = it.progress,
+        speed = it.speed,
+        stopped = false
+    )
 }
 
-val stop: ((Audio) -> Audio) = {
-    Audio(it, it.context, it.uris, AudioStateInput(
-        it.currentIndex,
-        true,
-        it.currentPosition,
-        true
-    ))
+val stop: ((ActualState) -> ExpectedState) = {
+    ExpectedState(
+        uris = it.uris,
+        index = it.index,
+        paused = true,
+        progress = 0,
+        speed = it.speed,
+        stopped = true
+    )
 }
 
-val next: ((Audio) -> Audio) = {
-    val nextIndex = (it.currentIndex+1)%it.uris.size
+val next: ((ActualState) -> ExpectedState) = {
+    val nextIndex = (it.index+1)%it.uris.size
 
-    Audio(it, it.context, it.uris, AudioStateInput(
-        nextIndex,
-        false,
-        0,
-        false
-    ))
+    ExpectedState(
+        uris = it.uris,
+        index = nextIndex,
+        paused = false,
+        progress = 0,
+        speed = it.speed,
+        stopped = false
+    )
 }
 
-val prev: ((Audio) -> Audio) = {
-    val prevIndex = (it.currentIndex-1)%it.uris.size
+val prev: ((ActualState) -> ExpectedState) = {
+    val prevIndex = (it.index-1)%it.uris.size
 
-    Audio(it, it.context, it.uris, AudioStateInput(
-        prevIndex,
-        false,
-        0,
-        false
-    ))
+    ExpectedState(
+        uris = it.uris,
+        index = prevIndex,
+        paused = false,
+        progress = 0,
+        speed = it.speed,
+        stopped = false
+    )
 }
 
-val seekTo = { audio: Audio, millis: Long ->
-    Audio(audio, audio.context, audio.uris, AudioStateInput(
-        audio.currentIndex,
-        false,
-        millis,
-        false
-    ))
+val moveToIndex = { currentState: ActualState, index: Int ->
+    ExpectedState(
+        uris = currentState.uris,
+        index = index,
+        paused = false,
+        progress = 0,
+        speed = currentState.speed,
+        stopped = false
+    )
 }
 
-val restart: ((Audio) -> Audio) = {
-    val prevIndex = (it.audioState.index-1)%it.uris.size
 
-    Audio(it, it.context, it.uris, AudioStateInput(
-        prevIndex,
-        false,
-        0,
-        false
-    ))
+val seekTo = { currentState: ActualState, millis: Long ->
+    ExpectedState(
+        uris = currentState.uris,
+        index = currentState.index,
+        paused = false,
+        progress = millis,
+        speed = currentState.speed,
+        stopped = false
+    )
 }
 
-val shuffle: ((Audio) -> Audio) = {
+val restart: ((ActualState) -> ExpectedState) = {
+    ExpectedState(
+        uris = it.uris,
+        index = it.index,
+        paused = false,
+        progress = 0,
+        speed = it.speed,
+        stopped = false
+    )
+}
+
+val shuffle: ((ActualState) -> ExpectedState) = {
     val randIndex = it.uris.indices.shuffled().last()
 
-    Audio(it, it.context, it.uris, AudioStateInput(
-        randIndex,
-        false,
-        0,
-        false
-    ))
+    ExpectedState(
+        uris = it.uris,
+        index = randIndex,
+        paused = false,
+        progress = 0,
+        speed = it.speed,
+        stopped = false
+    )
 }
 
-val addObserver = { audio: Audio, observer: AudioObserver ->
-    audio.observers.add(observer)
-    audio
-}
+internal val uriToMediaItem: ((Uri) -> MediaItem) = { MediaItem.fromUri(it) }
