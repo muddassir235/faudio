@@ -12,7 +12,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-const val repetitions = 3
+const val repetitions = 5
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -42,45 +42,53 @@ class AudioTest {
      * changeUris
      */
     @Test
+    @Repeat(repetitions)
     fun testAudioStopStart() = afterAudioStart {
         assertTrue(audio.changeState(stop))
         assertTrue(audio.changeState(start))
     }
 
     @Test
+    @Repeat(repetitions)
     fun testAudioStartPause() = afterAudioStart {
         assertTrue(audio.changeState(pause))
     }
 
     @Test
+    @Repeat(repetitions)
     fun testAudioPauseStart() = afterAudioStart {
         assertTrue(audio.changeState(pause))
         assertTrue(audio.changeState(start))
     }
 
     @Test
+    @Repeat(repetitions)
     fun testAudioPauseStop() = afterAudioStart {
         assertTrue(audio.changeState(pause))
         assertTrue(audio.changeState(stop))
     }
 
     @Test
+    @Repeat(repetitions)
     fun testAudioStartStop() = afterAudioStart {
         assertTrue(audio.changeState(stop))
     }
 
     @Test
+    @Repeat(repetitions)
     fun testAudioNext() = afterAudioStart {
         assertTrue(audio.changeState(next))
     }
 
 
     @Test
+    @Repeat(repetitions)
     fun testAudioPrev() = afterAudioStart {
         assertTrue(audio.changeState(prev))
     }
 
     @Test
+    @Repeat(repetitions)
     fun testAudioSeekTo() = afterAudioStart {
         assertTrue(audio.changeState{
             seekTo(it, 100000)
@@ -88,6 +96,7 @@ class AudioTest {
     }
 
     @Test
+    @Repeat(repetitions)
     fun testMoveToIndex() = afterAudioStart {
         assertTrue(audio.changeState{
             moveToIndex(it, 2)
@@ -95,11 +104,13 @@ class AudioTest {
     }
 
     @Test
+    @Repeat(repetitions)
     fun testRestart() = afterAudioStart {
         assertTrue(audio.changeState(restart))
     }
 
     @Test
+    @Repeat(repetitions)
     fun testAudioChangeUris() {
         afterAudioStart {
             val otherUris = arrayOf(
