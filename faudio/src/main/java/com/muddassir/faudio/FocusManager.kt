@@ -5,9 +5,9 @@ import android.media.AudioManager
 import android.media.AudioManager.*
 import com.muddassir.kmacros.delay
 
-enum class AudioAction { STOP, PAUSE, RESUME }
+enum class FocusAudioAction { STOP, PAUSE, RESUME }
 
-class FocusManager(context: Context, private val performAudioAction: (AudioAction) -> Unit) {
+class FocusManager(context: Context, private val performAudioAction: (FocusAudioAction) -> Unit) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private var _focused = false
@@ -17,12 +17,12 @@ class FocusManager(context: Context, private val performAudioAction: (AudioActio
     private val focusChangeListener = OnAudioFocusChangeListener { focusChange ->
         when(focusChange) {
             AUDIOFOCUS_LOSS, AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
-                performAudioAction(AudioAction.PAUSE)
-            AUDIOFOCUS_GAIN -> performAudioAction(AudioAction.RESUME)
+                performAudioAction(FocusAudioAction.PAUSE)
+            AUDIOFOCUS_GAIN -> performAudioAction(FocusAudioAction.RESUME)
         }
 
         if(focusChange == AUDIOFOCUS_LOSS) {
-            delay(30) { if(!_focused) performAudioAction(AudioAction.STOP) }
+            delay(30) { if(!_focused) performAudioAction(FocusAudioAction.STOP) }
         }
 
         _focused = focusChange == AUDIOFOCUS_GAIN
@@ -33,15 +33,15 @@ class FocusManager(context: Context, private val performAudioAction: (AudioActio
 
         _focused = when(result) {
             AUDIOFOCUS_REQUEST_FAILED -> {
-                performAudioAction(AudioAction.STOP)
+                performAudioAction(FocusAudioAction.STOP)
                 false
             }
             AUDIOFOCUS_REQUEST_GRANTED -> {
-                performAudioAction(AudioAction.RESUME)
+                performAudioAction(FocusAudioAction.RESUME)
                 true
             }
             AUDIOFOCUS_REQUEST_DELAYED -> {
-                performAudioAction(AudioAction.PAUSE)
+                performAudioAction(FocusAudioAction.PAUSE)
                 false
             }
             else -> false

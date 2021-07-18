@@ -13,25 +13,28 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
     private var ap = AudioProducerBuilder(context).build()
     private val fm = FocusManager(context) {
         when(it) {
-            AudioAction.STOP -> ap.stop()
-            AudioAction.PAUSE -> ap.pause()
-            AudioAction.RESUME -> ap.resume()
+            FocusAudioAction.STOP -> ap.stop()
+            FocusAudioAction.PAUSE -> ap.pause()
+            FocusAudioAction.RESUME -> ap.resume()
         }
     }
 
-    private val _audioState = MutableLiveData<AudioState>()
-    val audioState: LiveData<AudioState> = _audioState
+    private val _audioState = MutableLiveData<ActualState>()
+    val audioState: LiveData<ActualState> = _audioState
 
     init {
         trackProgress()
     }
 
-    suspend fun setState(newState: AudioState): Boolean {
+    suspend fun setState(newState: ExpectedState): Boolean {
         withContext(Dispatchers.Main) {
             val currState = ap.audioState
 
             // uris
-            if (!newState.uris.contentEquals(currState.uris)) ap.setUris(newState.uris)
+            if (!newState.uris.contentEquals(currState.uris)) {
+                ap.setUris(newState.uris)
+                ap.seekTo(newState.index, 0)
+            }
 
             // stopped
             if (newState.stopped != currState.stopped) {
@@ -40,6 +43,7 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
 
                     ap = AudioProducerBuilder(context).build()
                     ap.setUris(newState.uris)
+                    ap.seekTo(newState.index, 0)
                 } else {
                     if(newState.paused) {
                         ap.pause()
@@ -66,13 +70,13 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
 
             // speed
             if (newState.speed != currState.speed) {
-                ap.setPlaybackSpeed(newState.speed)
+                ap.setAudioSpeed(newState.speed)
             }
         }
 
         repeat(15) {
             delay(200)
-            if(audioState.value == newState) return true
+            if(audioState.value?.equals(newState) == true) return true
         }
 
         if(BuildConfig.DEBUG) {
@@ -89,10 +93,10 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
             )
         }
 
-        return audioState.value == newState
+        return audioState.value?.equals(newState) == true
     }
 
-    fun setStateAsync(newState: AudioState, callback: ((Boolean)->Unit)? = null) {
+    fun setStateAsync(newState: ExpectedState, callback: ((Boolean)->Unit)? = null) {
         flow {
             emit(setState(newState))
         }.onEach {
@@ -100,12 +104,12 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
         }.launchIn(scope)
     }
 
-    suspend fun changeState(action: (AudioState) -> AudioState): Boolean {
+    suspend fun changeState(action: (ActualState) -> ExpectedState): Boolean {
         val newState = this.audioState.value?.change(action) ?: return false
         return this.setState(newState)
     }
 
-    fun changeStateAsync(action: (AudioState) -> AudioState, callback: ((Boolean)->Unit)? = null) {
+    fun changeStateAsync(action: (ActualState) -> ExpectedState, callback: ((Boolean)->Unit)? = null) {
         flow {
             emit(changeState(action))
         }.onEach {

@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.muddassir.faudio.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -60,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         val audio = Audio(this, lifecycleScope)
 
         lifecycleScope.launch {
-            if(audio.setState(AudioState.defaultStateWithUris(uris))) {
+            if(audio.setState(ExpectedState.defaultStateWithUris(uris))) {
                 audio.changeState(start)
                 delay(10000)
                 audio.changeState(stop)
