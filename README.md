@@ -111,7 +111,7 @@ Observe the audio state or state diffs on every change of state.
 
 State changes
 ```kotlin
-audio.audioState.observer(lifecycleScope) { actualState ->
+audio.state.observer(lifecycleScope) { actualState ->
     // Your logic here
     // Fields available...
     // actualState.uris, actualState.index, actualState.paused, actualState.progress
