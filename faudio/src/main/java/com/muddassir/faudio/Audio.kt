@@ -26,14 +26,14 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         }
     }
 
-    private val _state = MutableLiveData<ActualState>()
-    val state: LiveData<ActualState> = _state
+    private val _state = MutableLiveData<ActualAudioState>()
+    val state: LiveData<ActualAudioState> = _state
 
     init {
         trackProgress()
     }
 
-    suspend fun setState(newState: ExpectedState): Boolean {
+    suspend fun setState(newState: ExpectedAudioState): Boolean {
         withContext(Dispatchers.Main) {
             val currState = ap.audioState
 
@@ -103,7 +103,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         return state.value?.equals(newState) == true
     }
 
-    fun setStateAsync(newState: ExpectedState, callback: ((Boolean)->Unit)? = null) {
+    fun setStateAsync(newState: ExpectedAudioState, callback: ((Boolean)->Unit)? = null) {
         flow {
             emit(setState(newState))
         }.onEach {
@@ -111,12 +111,12 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         }.launchIn(scope)
     }
 
-    suspend fun changeState(action: (ActualState) -> ExpectedState): Boolean {
+    suspend fun changeState(action: (ActualAudioState) -> ExpectedAudioState): Boolean {
         val newState = this.state.value?.change(action) ?: return false
         return this.setState(newState)
     }
 
-    fun changeStateAsync(action: (ActualState) -> ExpectedState, callback: ((Boolean)->Unit)? = null) {
+    fun changeStateAsync(action: (ActualAudioState) -> ExpectedAudioState, callback: ((Boolean)->Unit)? = null) {
         flow {
             emit(changeState(action))
         }.onEach {

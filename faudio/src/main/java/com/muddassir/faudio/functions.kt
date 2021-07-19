@@ -3,8 +3,8 @@ package com.muddassir.faudio
 import android.net.Uri
 import com.google.android.exoplayer2.MediaItem
 
-val start: ((ActualState) -> ExpectedState) = {
-    ExpectedState(
+val start: ((ActualAudioState) -> ExpectedAudioState) = {
+    ExpectedAudioState(
         uris = it.uris,
         index = it.index,
         paused = false,
@@ -14,8 +14,8 @@ val start: ((ActualState) -> ExpectedState) = {
     )
 }
 
-val pause: ((ActualState) -> ExpectedState) = {
-    ExpectedState(
+val pause: ((ActualAudioState) -> ExpectedAudioState) = {
+    ExpectedAudioState(
         uris = it.uris,
         index = it.index,
         paused = true,
@@ -25,8 +25,8 @@ val pause: ((ActualState) -> ExpectedState) = {
     )
 }
 
-val stop: ((ActualState) -> ExpectedState) = {
-    ExpectedState(
+val stop: ((ActualAudioState) -> ExpectedAudioState) = {
+    ExpectedAudioState(
         uris = it.uris,
         index = it.index,
         paused = true,
@@ -36,10 +36,10 @@ val stop: ((ActualState) -> ExpectedState) = {
     )
 }
 
-val next: ((ActualState) -> ExpectedState) = {
+val next: ((ActualAudioState) -> ExpectedAudioState) = {
     val nextIndex = (it.index+1)%it.uris.size
 
-    ExpectedState(
+    ExpectedAudioState(
         uris = it.uris,
         index = nextIndex,
         paused = false,
@@ -49,10 +49,10 @@ val next: ((ActualState) -> ExpectedState) = {
     )
 }
 
-val prev: ((ActualState) -> ExpectedState) = {
+val prev: ((ActualAudioState) -> ExpectedAudioState) = {
     val prevIndex = (it.index-1)%it.uris.size
 
-    ExpectedState(
+    ExpectedAudioState(
         uris = it.uris,
         index = prevIndex,
         paused = false,
@@ -62,8 +62,8 @@ val prev: ((ActualState) -> ExpectedState) = {
     )
 }
 
-val moveToIndex = { currentState: ActualState, index: Int ->
-    ExpectedState(
+val moveToIndex = { currentState: ActualAudioState, index: Int ->
+    ExpectedAudioState(
         uris = currentState.uris,
         index = index,
         paused = false,
@@ -74,8 +74,8 @@ val moveToIndex = { currentState: ActualState, index: Int ->
 }
 
 
-val seekTo = { currentState: ActualState, millis: Long ->
-    ExpectedState(
+val seekTo = { currentState: ActualAudioState, millis: Long ->
+    ExpectedAudioState(
         uris = currentState.uris,
         index = currentState.index,
         paused = false,
@@ -85,8 +85,8 @@ val seekTo = { currentState: ActualState, millis: Long ->
     )
 }
 
-val restart: ((ActualState) -> ExpectedState) = {
-    ExpectedState(
+val restart: ((ActualAudioState) -> ExpectedAudioState) = {
+    ExpectedAudioState(
         uris = it.uris,
         index = it.index,
         paused = false,
@@ -96,10 +96,10 @@ val restart: ((ActualState) -> ExpectedState) = {
     )
 }
 
-val shuffle: ((ActualState) -> ExpectedState) = {
+val shuffle: ((ActualAudioState) -> ExpectedAudioState) = {
     val randIndex = it.uris.indices.shuffled().last()
 
-    ExpectedState(
+    ExpectedAudioState(
         uris = it.uris,
         index = randIndex,
         paused = false,

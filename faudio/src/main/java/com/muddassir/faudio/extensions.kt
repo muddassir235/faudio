@@ -11,7 +11,7 @@ internal val AudioProducer.started      : Boolean     get() = this.playbackState
 internal val AudioProducer.speed        : Float       get() = this.playbackParameters.speed
 internal val AudioProducer.stopped      : Boolean     get() = this.playbackState == Player.STATE_IDLE || this.playbackState == Player.STATE_ENDED
 internal val AudioProducer.error        : String?     get() = this.playerError?.localizedMessage
-internal val AudioProducer.audioState   : ActualState get() = ActualState(this.uris, this.currentIndex, !this.started, this.currentPosition, this.speed,
+internal val AudioProducer.audioState   : ActualAudioState get() = ActualAudioState(this.uris, this.currentIndex, !this.started, this.currentPosition, this.speed,
     this.bufferedPosition, this.duration, this.stopped, this.error)
 
 internal fun AudioProducer.resume() { if(!stopped) this.play() }
@@ -23,12 +23,12 @@ internal fun AudioProducer.setUris(uris: Array<Uri>) {
 }
 internal fun AudioProducer.setAudioSpeed(speed: Float) { this.setPlaybackSpeed(speed) }
 
-val Audio.audioStateDiff: LiveData<AudioStateDiff> get() {
-    var prev: ActualState? = null
+val Audio.stateDiff: LiveData<AudioStateDiff> get() {
+    var prev: ActualAudioState? = null
     val diffLd = MediatorLiveData<AudioStateDiff>()
 
     diffLd.addSource(state) {
-        diffLd.value = AudioStateDiff(prev, it, prev?.audioStateChange(it))
+        diffLd.value = AudioStateDiff(prev, it, prev?.changeType(it))
 
         prev = it
     }
@@ -36,7 +36,7 @@ val Audio.audioStateDiff: LiveData<AudioStateDiff> get() {
     return diffLd
 }
 
-class AudioStateChangeKeys {
+class AudioStateChangeTypes {
     companion object {
         const val START = "start"
         const val PAUSE = "pause"
@@ -53,34 +53,34 @@ class AudioStateChangeKeys {
 }
 
 data class AudioStateDiff(
-    val prev: ActualState?,
-    val next: ActualState,
-    val audioStateChangeKey: String?
+    val prev: ActualAudioState?,
+    val next: ActualAudioState,
+    val changeType: String?
 )
 
-fun ActualState.audioStateChange(next: ActualState): String {
+fun ActualAudioState.changeType(next: ActualAudioState): String {
     return if(!this.uris.contentEquals(next.uris))
-        AudioStateChangeKeys.URIS_CHANGED
+        AudioStateChangeTypes.URIS_CHANGED
     else if(this.stopped != next.stopped && next.stopped)
-        AudioStateChangeKeys.STOP
+        AudioStateChangeTypes.STOP
     else if(this.paused != next.paused && next.paused)
-        AudioStateChangeKeys.PAUSE
+        AudioStateChangeTypes.PAUSE
     else if(this.index != next.index && next.index == this.index+1)
-        AudioStateChangeKeys.NEXT
+        AudioStateChangeTypes.NEXT
     else if(this.index != next.index && next.index == this.index-1)
-        AudioStateChangeKeys.PREV
+        AudioStateChangeTypes.PREV
     else if(this.index != next.index)
-        AudioStateChangeKeys.MOVE_TO_INDEX
+        AudioStateChangeTypes.MOVE_TO_INDEX
     else if(this.paused != next.paused && !next.paused)
-        AudioStateChangeKeys.START
+        AudioStateChangeTypes.START
     else if((this.progress > 0 || this.bufferedPosition > 0) && next.progress == 0L
         && next.index == this.index)
-        AudioStateChangeKeys.RESTART
+        AudioStateChangeTypes.RESTART
     else if(this.progress != next.progress)
-        AudioStateChangeKeys.SEEK
+        AudioStateChangeTypes.SEEK
     else if(this.paused == next.paused && this.stopped == next.stopped &&
         this.index == next.index && this.progress == next.progress
         && this.uris.contentEquals(next.uris))
-        AudioStateChangeKeys.UNCHANGED
-    else AudioStateChangeKeys.UNKNOWN
+        AudioStateChangeTypes.UNCHANGED
+    else AudioStateChangeTypes.UNKNOWN
 }
