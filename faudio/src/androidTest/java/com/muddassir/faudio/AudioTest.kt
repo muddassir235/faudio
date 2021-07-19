@@ -24,7 +24,7 @@ class AudioTest {
     @Rule @JvmField
     var repeatRule: RepeatRule = RepeatRule()
 
-    lateinit var audio: Audio
+    private lateinit var audio: Audio
 
     /**
      * Test the following state transitions
@@ -136,7 +136,7 @@ class AudioTest {
     private fun afterAudioStart(task: (suspend (Unit)->Unit)) {
         runOnMainThread {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
-            audio = Audio(context, GlobalScope)
+            audio = Audio(context)
 
             val uris = uris(
                 "https://audio-samples.github.io/samples/mp3/blizzard_biased/sample-5.mp3",
