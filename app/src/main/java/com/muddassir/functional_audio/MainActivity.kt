@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         val audio = Audio(this)
 
         lifecycleScope.launch {
-            if(audio.setState(ExpectedState.defaultStateWithUris(uris))) {
+            if(audio.setState(ExpectedAudioState.defaultStateWithUris(uris))) {
                 audio.changeState(start)
                 delay(10000)
                 audio.changeState(stop)

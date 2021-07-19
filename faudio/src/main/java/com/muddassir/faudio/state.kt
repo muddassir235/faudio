@@ -2,7 +2,7 @@ package com.muddassir.faudio
 
 import android.net.Uri
 
-data class ExpectedState(
+data class ExpectedAudioState(
     val uris: Array<Uri>,
     val index: Int,
     val paused: Boolean,
@@ -13,12 +13,12 @@ data class ExpectedState(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
-        if(javaClass != ExpectedState::class.java && javaClass != ActualState::class.java) {
+        if(javaClass != ExpectedAudioState::class.java && javaClass != ActualAudioState::class.java) {
             return false
         }
 
         when(other) {
-            is ExpectedState -> {
+            is ExpectedAudioState -> {
                 if (!uris.contentEquals(other.uris)) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
@@ -28,7 +28,7 @@ data class ExpectedState(
 
                 return true
             }
-            is ActualState -> {
+            is ActualAudioState -> {
                 val progressTolerance = 10000L
 
                 if (!uris.contentEquals(other.uris)) return false
@@ -55,11 +55,11 @@ data class ExpectedState(
     }
 
     companion object {
-        val DEFAULT = ExpectedState(
+        val DEFAULT = ExpectedAudioState(
             arrayOf(), 0, true, 0, 1.0f, true)
 
-        fun defaultStateWithUris(uris: Array<Uri>): ExpectedState {
-            return ExpectedState(
+        fun defaultStateWithUris(uris: Array<Uri>): ExpectedAudioState {
+            return ExpectedAudioState(
                 uris,
                 DEFAULT.index,
                 DEFAULT.paused,
@@ -71,7 +71,7 @@ data class ExpectedState(
     }
 }
 
-data class ActualState(
+data class ActualAudioState(
     val uris                 : Array<Uri>,
     val index                : Int,
     val paused               : Boolean,
@@ -85,12 +85,12 @@ data class ActualState(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
-        if(javaClass != ExpectedState::class.java && javaClass != ActualState::class.java) {
+        if(javaClass != ExpectedAudioState::class.java && javaClass != ActualAudioState::class.java) {
             return false
         }
 
         when(other) {
-            is ExpectedState -> {
+            is ExpectedAudioState -> {
                 val progressTolerance = 10000L
 
                 if (!uris.contentEquals(other.uris)) return false
@@ -102,7 +102,7 @@ data class ActualState(
 
                 return true
             }
-            is ActualState -> {
+            is ActualAudioState -> {
                 val progressTolerance = 10000L
 
                 if (!uris.contentEquals(other.uris)) return false
@@ -128,7 +128,7 @@ data class ActualState(
         return result
     }
 
-    fun change(action: (ActualState) -> ExpectedState): ExpectedState {
+    fun change(action: (ActualAudioState) -> ExpectedAudioState): ExpectedAudioState {
         return action(this)
     }
 }

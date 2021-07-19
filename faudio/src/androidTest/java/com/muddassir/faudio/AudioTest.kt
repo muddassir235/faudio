@@ -120,7 +120,7 @@ class AudioTest {
 
             background {
                 assertTrue(audio.changeState {
-                    ExpectedState(
+                    ExpectedAudioState(
                         otherUris,
                         it.index,
                         it.paused,
@@ -145,7 +145,7 @@ class AudioTest {
             )
 
             background {
-                assertTrue(audio.setState(ExpectedState.defaultStateWithUris(uris)))
+                assertTrue(audio.setState(ExpectedAudioState.defaultStateWithUris(uris)))
                 assertTrue(audio.changeState(start))
                 assertTrue(audio.changeState(next))
                 delay(5000)

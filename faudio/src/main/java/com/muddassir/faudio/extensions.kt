@@ -11,7 +11,7 @@ internal val AudioProducer.started      : Boolean     get() = this.playbackState
 internal val AudioProducer.speed        : Float       get() = this.playbackParameters.speed
 internal val AudioProducer.stopped      : Boolean     get() = this.playbackState == Player.STATE_IDLE || this.playbackState == Player.STATE_ENDED
 internal val AudioProducer.error        : String?     get() = this.playerError?.localizedMessage
-internal val AudioProducer.audioState   : ActualState get() = ActualState(this.uris, this.currentIndex, !this.started, this.currentPosition, this.speed,
+internal val AudioProducer.audioState   : ActualAudioState get() = ActualAudioState(this.uris, this.currentIndex, !this.started, this.currentPosition, this.speed,
     this.bufferedPosition, this.duration, this.stopped, this.error)
 
 internal fun AudioProducer.resume() { if(!stopped) this.play() }
@@ -24,7 +24,7 @@ internal fun AudioProducer.setUris(uris: Array<Uri>) {
 internal fun AudioProducer.setAudioSpeed(speed: Float) { this.setPlaybackSpeed(speed) }
 
 val Audio.stateDiff: LiveData<AudioStateDiff> get() {
-    var prev: ActualState? = null
+    var prev: ActualAudioState? = null
     val diffLd = MediatorLiveData<AudioStateDiff>()
 
     diffLd.addSource(state) {
@@ -53,12 +53,12 @@ class AudioStateChangeTypes {
 }
 
 data class AudioStateDiff(
-    val prev: ActualState?,
-    val next: ActualState,
+    val prev: ActualAudioState?,
+    val next: ActualAudioState,
     val audioStateChangeKey: String?
 )
 
-fun ActualState.changeType(next: ActualState): String {
+fun ActualAudioState.changeType(next: ActualAudioState): String {
     return if(!this.uris.contentEquals(next.uris))
         AudioStateChangeTypes.URIS_CHANGED
     else if(this.stopped != next.stopped && next.stopped)
