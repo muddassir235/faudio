@@ -3,8 +3,6 @@
 
 Android Audio Library, leaning towards a functional programming style, written in Kotlin. Written on top of [ExoPlayer](https://github.com/google/ExoPlayer).
 
-Used in https://play.google.com/store/apps/details?id=com.muddassirkhan.quran_android
-
 ## Unique Features
 * A simple API is provided which leans towards a functional programming style.
 * A whole host of arbitrary custom functions can be written to perform actions on the audio.
