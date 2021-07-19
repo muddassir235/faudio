@@ -10,6 +10,13 @@ Used in https://play.google.com/store/apps/details?id=com.muddassirkhan.quran_an
 * A whole host of arbitrary custom functions can be written to perform actions on the audio.
 * Hides away all of the video related features of ExoPlayer so you can focus on your audio application.
 
+## Requirements
+* Android 5+
+* Lifecycle Runtime
+    ```groovy
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:$lastest_version'
+    ```
+
 ## Add Dependencies
 Add the following in your project level build.gradle
 ```groovy
@@ -22,7 +29,7 @@ allprojects {
 and the following in your app level build.gradle
 ```groovy
 dependencies {
-    implementation 'com.github.muddassir235:faudio:1.6'
+    implementation 'com.github.muddassir235:faudio:2.0'
 }
 ```
 
