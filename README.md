@@ -43,7 +43,7 @@ val uris = uris(
 )
 
 val audio = Audio(context = this, scope = lifecycleScope)
-audio.setStateAsync(ExpectedState.defaultStateWithUris(uris))
+audio.setStateAsync(ExpectedAudioState.defaultStateWithUris(uris))
 ```
 
 ### Available audio actions
@@ -96,7 +96,7 @@ audio.changeState{ actualState ->
   // Perform a custom action based on the current state of the audio.
   // e.g. This action flips the paused state of the audio (so if its paused it gets started, if its start it gets paused)
   // Any similar custom action can be performed
-  ExpectedState(
+  ExpectedAudioState(
     uris = actualState.uris,
     index = /* new index */,
     paused = /* should it be paused */,
@@ -122,27 +122,27 @@ audio.state.observer(lifecycleScope) { actualState ->
 
 State diffs
 ```kotlin
-audio.audioStateDiff.observer(lifecycleScope) { audioStateDiff ->
+audio.stateDiff.observer(lifecycleScope) { diff ->
     // Your logic here
     // Fields available...
-    // audioStateDiff.prev Previous state
-    // audioStateDiff.next Next state
-    // audioStateDiff.audioStateChangeKey (Can be one of the those defined in AudioStateChangeKeys)
+    // diff.prev Previous state
+    // diff.next Next state
+    // diff.changeType (Can be one of the those defined in AudioStateChangeTypes)
 }
 ```
-The following are the available state change keys
+The following are the available state change types
 ```kotlin
-AudioStateChangeKeys.START
-AudioStateChangeKeys.PAUSE
-AudioStateChangeKeys.STOP
-AudioStateChangeKeys.NEXT
-AudioStateChangeKeys.PREV
-AudioStateChangeKeys.SEEK
-AudioStateChangeKeys.MOVE_TO_INDEX
-AudioStateChangeKeys.RESTART
-AudioStateChangeKeys.URIS_CHANGED
-AudioStateChangeKeys.UNCHANGED
-AudioStateChangeKeys.UNKNOWN
+AudioStateChangeTypes.START
+AudioStateChangeTypes.PAUSE
+AudioStateChangeTypes.STOP
+AudioStateChangeTypes.NEXT
+AudioStateChangeTypes.PREV
+AudioStateChangeTypes.SEEK
+AudioStateChangeTypes.MOVE_TO_INDEX
+AudioStateChangeTypes.RESTART
+AudioStateChangeTypes.URIS_CHANGED
+AudioStateChangeTypes.UNCHANGED
+AudioStateChangeTypes.UNKNOWN
 ```
 
 ## Credits:

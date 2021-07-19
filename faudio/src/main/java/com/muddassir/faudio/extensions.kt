@@ -55,7 +55,7 @@ class AudioStateChangeTypes {
 data class AudioStateDiff(
     val prev: ActualAudioState?,
     val next: ActualAudioState,
-    val audioStateChangeKey: String?
+    val changeType: String?
 )
 
 fun ActualAudioState.changeType(next: ActualAudioState): String {
