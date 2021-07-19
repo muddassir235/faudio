@@ -27,7 +27,7 @@ allprojects {
 and the following in your app level build.gradle
 ```groovy
 dependencies {
-    implementation 'com.github.muddassir235:faudio:2.0'
+    implementation 'com.github.muddassir235:faudio:2.1'
 }
 ```
 
