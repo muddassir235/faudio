@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
             "https://server11.mp3quran.net/sds/003.mp3"
         )
 
-        val audio = Audio(this, lifecycleScope)
+        val audio = Audio(this)
 
         lifecycleScope.launch {
             if(audio.setState(ExpectedState.defaultStateWithUris(uris))) {

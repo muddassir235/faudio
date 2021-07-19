@@ -2,15 +2,21 @@ package com.muddassir.faudio
 
 import android.content.Context
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import com.muddassir.faudio.FocusManager.FocusAudioAction.*
 
-class Audio(private val context: Context, private val scope: CoroutineScope) {
+class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null) {
+    private val scope: CoroutineScope = lifecycleOwner?.lifecycleScope
+        ?: (context as? AppCompatActivity)?.lifecycleScope ?: GlobalScope
+
     private var ap = AudioProducerBuilder(context).build()
     private val fm = FocusManager(context) {
         when(it) {
@@ -20,8 +26,8 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
         }
     }
 
-    private val _audioState = MutableLiveData<ActualState>()
-    val audioState: LiveData<ActualState> = _audioState
+    private val _state = MutableLiveData<ActualState>()
+    val state: LiveData<ActualState> = _state
 
     init {
         trackProgress()
@@ -77,7 +83,7 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
 
         repeat(15) {
             delay(200)
-            if(audioState.value?.equals(newState) == true) return true
+            if(state.value?.equals(newState) == true) return true
         }
 
         if(BuildConfig.DEBUG) {
@@ -87,14 +93,14 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
                 Unmatched states: 
                 
                 *********
-                actual   : ${audioState.value}
+                actual   : ${state.value}
                 expected : $newState
                 *********
                 """.trimIndent()
             )
         }
 
-        return audioState.value?.equals(newState) == true
+        return state.value?.equals(newState) == true
     }
 
     fun setStateAsync(newState: ExpectedState, callback: ((Boolean)->Unit)? = null) {
@@ -106,7 +112,7 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
     }
 
     suspend fun changeState(action: (ActualState) -> ExpectedState): Boolean {
-        val newState = this.audioState.value?.change(action) ?: return false
+        val newState = this.state.value?.change(action) ?: return false
         return this.setState(newState)
     }
 
@@ -121,7 +127,7 @@ class Audio(private val context: Context, private val scope: CoroutineScope) {
     private fun trackProgress() = scope.launch {
         while (true) {
             withContext(Dispatchers.Main) {
-                _audioState.value = ap.audioState
+                _state.value = ap.audioState
             }
             delay(200)
         }

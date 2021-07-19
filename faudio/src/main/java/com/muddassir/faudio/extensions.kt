@@ -27,7 +27,7 @@ val Audio.audioStateDiff: LiveData<AudioStateDiff> get() {
     var prev: ActualState? = null
     val diffLd = MediatorLiveData<AudioStateDiff>()
 
-    diffLd.addSource(audioState) {
+    diffLd.addSource(state) {
         diffLd.value = AudioStateDiff(prev, it, prev?.audioStateChange(it))
 
         prev = it
