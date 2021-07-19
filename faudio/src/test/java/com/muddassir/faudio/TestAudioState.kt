@@ -223,42 +223,42 @@ class TestAudioState {
         val started = start(audioState)
         val actualStartedState = mockActualStateFromExpectedState(started)
 
-        assertTrue(audioState.audioStateChange(actualStartedState) == AudioStateChangeKeys.START)
+        assertTrue(audioState.changeType(actualStartedState) == AudioStateChangeTypes.START)
 
         val paused = pause(actualStartedState)
         val actualPausedState = mockActualStateFromExpectedState(paused)
 
-        assertTrue(actualStartedState.audioStateChange(actualPausedState) == AudioStateChangeKeys.PAUSE)
+        assertTrue(actualStartedState.changeType(actualPausedState) == AudioStateChangeTypes.PAUSE)
 
         val stopped = stop(actualPausedState)
         val actualStoppedState = mockActualStateFromExpectedState(stopped)
 
-        assertTrue(actualPausedState.audioStateChange(actualStoppedState) == AudioStateChangeKeys.STOP)
+        assertTrue(actualPausedState.changeType(actualStoppedState) == AudioStateChangeTypes.STOP)
 
         val next = next(actualStartedState)
         val actualNextState = mockActualStateFromExpectedState(next)
 
-        assertTrue(actualStartedState.audioStateChange(actualNextState) == AudioStateChangeKeys.NEXT)
+        assertTrue(actualStartedState.changeType(actualNextState) == AudioStateChangeTypes.NEXT)
 
         val prev = prev(actualNextState)
         val actualPevState = mockActualStateFromExpectedState(prev)
 
-        assertTrue(actualNextState.audioStateChange(actualPevState) == AudioStateChangeKeys.PREV)
+        assertTrue(actualNextState.changeType(actualPevState) == AudioStateChangeTypes.PREV)
 
         val seeked = seekTo(actualStartedState, 100000)
         val actualSeekedState = mockActualStateFromExpectedState(seeked)
 
-        assertTrue(actualStartedState.audioStateChange(actualSeekedState) == AudioStateChangeKeys.SEEK)
+        assertTrue(actualStartedState.changeType(actualSeekedState) == AudioStateChangeTypes.SEEK)
 
         val moved = moveToIndex(actualStartedState, 3)
         val actualMovedState = mockActualStateFromExpectedState(moved)
 
-        assertTrue(actualStartedState.audioStateChange(actualMovedState) == AudioStateChangeKeys.MOVE_TO_INDEX)
+        assertTrue(actualStartedState.changeType(actualMovedState) == AudioStateChangeTypes.MOVE_TO_INDEX)
 
         val restarted = restart(actualSeekedState)
         val actualRestartedState = mockActualStateFromExpectedState(restarted)
 
-        assertTrue(actualSeekedState.audioStateChange(actualRestartedState) == AudioStateChangeKeys.RESTART)
+        assertTrue(actualSeekedState.changeType(actualRestartedState) == AudioStateChangeTypes.RESTART)
 
         val urisChangedState = ActualState(
             arrayOf(),
@@ -271,9 +271,9 @@ class TestAudioState {
             audioState.stopped,
             audioState.error
         )
-        assertTrue(audioState.audioStateChange(urisChangedState) == AudioStateChangeKeys.URIS_CHANGED)
+        assertTrue(audioState.changeType(urisChangedState) == AudioStateChangeTypes.URIS_CHANGED)
 
-        assertTrue(actualSeekedState.audioStateChange(actualSeekedState) == AudioStateChangeKeys.UNCHANGED)
+        assertTrue(actualSeekedState.changeType(actualSeekedState) == AudioStateChangeTypes.UNCHANGED)
     }
 
     private fun mockActualStateFromExpectedState(expectedState: ExpectedState): ActualState {
