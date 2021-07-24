@@ -32,8 +32,7 @@ internal class AudioDownloads(context: Context, lifecycleOwner: LifecycleOwner? 
 
     private val manager: DownloadManager = downloadManager
 
-    private val _state = MutableLiveData(ActualDownloadState(emptyArray(),
-        false))
+    private val _state = MutableLiveData(ActualDownloadState(emptyList(), false))
     val state: LiveData<ActualDownloadState> = _state
 
     init {
@@ -41,7 +40,7 @@ internal class AudioDownloads(context: Context, lifecycleOwner: LifecycleOwner? 
     }
 
     suspend fun setState(newState: ExpectedDownloadState): Boolean {
-        val actualDownloads = state.value?.downloads ?: emptyArray()
+        val actualDownloads = state.value?.downloads ?: emptyList()
         val expectedDownloads = newState.downloads
 
         expectedDownloads.forEach { state ->
@@ -114,7 +113,9 @@ internal class AudioDownloads(context: Context, lifecycleOwner: LifecycleOwner? 
 
     private fun trackProgress() = scope.launch {
         while (true) {
-            _state.value = manager.downloadState
+            withContext(Dispatchers.Main) {
+                _state.value = manager.downloadState
+            }
             delay(200)
         }
     }

@@ -11,7 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-const val repetitions = 3
+const val repetitions = 1
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -121,7 +121,7 @@ class AudioTest {
             background {
                 assertTrue(audio.changeState {
                     ExpectedAudioState(
-                        otherUris.map { uri -> ExpectedAudioItem(uri, false) }.toTypedArray(),
+                        otherUris.map { uri -> ExpectedAudioItem(uri, false) },
                         it.index,
                         it.paused,
                         0,

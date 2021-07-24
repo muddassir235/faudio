@@ -23,14 +23,14 @@ internal fun Array<String>.toUris(): Array<Uri> {
 /**
  * Converts string uris/urls/file paths arguments to Uris
  */
-fun uris(vararg uriStrings: String): Array<Uri> {
-    return Array(uriStrings.size) { Uri.parse(uriStrings[it]) }
+fun uris(vararg uriStrings: String): List<Uri> {
+    return uriStrings.map { Uri.parse(it) }
 }
 
-fun audios(vararg uriStrings: String): Array<ActualAudioItem> {
+fun audios(vararg uriStrings: String): List<ActualAudioItem> {
     return Array(uriStrings.size) { Uri.parse(uriStrings[it]) }.map {
         ActualAudioItem(it, false, false, 0f)
-    }.toTypedArray()
+    }
 }
 
 internal fun AudioManager.requestFocus(focusChangeListener: AudioManager.OnAudioFocusChangeListener)

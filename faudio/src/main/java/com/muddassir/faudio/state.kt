@@ -33,7 +33,7 @@ data class ExpectedAudioItem(
 }
 
 data class ExpectedAudioState(
-    val audios: Array<ExpectedAudioItem>,
+    val audios: List<ExpectedAudioItem>,
     val index: Int,
     val paused: Boolean,
     val progress: Long,
@@ -49,7 +49,7 @@ data class ExpectedAudioState(
 
         when(other) {
             is ExpectedAudioState -> {
-                if (!audios.contentEquals(other.audios)) return false
+                if (audios != other.audios) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress != other.progress) return false
@@ -61,7 +61,7 @@ data class ExpectedAudioState(
             is ActualAudioState -> {
                 val progressTolerance = 10000L
 
-                if (!audios.contentEquals(other.audios)) return false
+                if (audios != other.audios) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -75,7 +75,7 @@ data class ExpectedAudioState(
     }
 
     override fun hashCode(): Int {
-        var result = audios.contentHashCode()
+        var result = audios.hashCode()
         result = 31 * result + index
         result = 31 * result + paused.hashCode()
         result = 31 * result + progress.hashCode()
@@ -86,11 +86,11 @@ data class ExpectedAudioState(
 
     companion object {
         val DEFAULT = ExpectedAudioState(
-            arrayOf(), 0, true, 0, 1.0f, true)
+            emptyList(), 0, true, 0, 1.0f, true)
 
-        fun defaultStateWithUris(uris: Array<Uri>): ExpectedAudioState {
+        fun defaultStateWithUris(uris: List<Uri>): ExpectedAudioState {
             return ExpectedAudioState(
-                uris.map { ExpectedAudioItem(it, false) }.toTypedArray(),
+                uris.map { ExpectedAudioItem(it, false) },
                 DEFAULT.index,
                 DEFAULT.paused,
                 DEFAULT.progress,
@@ -102,7 +102,7 @@ data class ExpectedAudioState(
 }
 
 data class ActualAudioState(
-    val audios               : Array<ActualAudioItem>,
+    val audios               : List<ActualAudioItem>,
     val index                : Int,
     val paused               : Boolean,
     val progress             : Long,
@@ -123,7 +123,7 @@ data class ActualAudioState(
             is ExpectedAudioState -> {
                 val progressTolerance = 10000L
 
-                if (!audios.contentEquals(other.audios)) return false
+                if (audios != other.audios) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -135,7 +135,7 @@ data class ActualAudioState(
             is ActualAudioState -> {
                 val progressTolerance = 10000L
 
-                if (!audios.contentEquals(other.audios)) return false
+                if (audios != other.audios) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -149,7 +149,7 @@ data class ActualAudioState(
     }
 
     override fun hashCode(): Int {
-        var result = audios.contentHashCode()
+        var result = audios.hashCode()
         result = 31 * result + index
         result = 31 * result + paused.hashCode()
         result = 31 * result + ((progress+5000/10000)*10000).hashCode()

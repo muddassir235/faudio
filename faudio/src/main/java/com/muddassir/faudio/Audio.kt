@@ -47,7 +47,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
             val currState = audioState
 
             // uris
-            if (!newState.audios.contentEquals(currState.audios)) {
+            if (newState.audios != currState.audios) {
                 ap.setUris(newState.audios.map {
                     if(it.download) {
                         audioDownloads.changeState { downloadState ->
@@ -55,7 +55,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
                         }
                     }
                     it.uri
-                }.toTypedArray())
+                })
                 ap.seekTo(newState.index, 0)
             }
 
@@ -65,7 +65,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
                     ap.release()
 
                     ap = AudioProducerBuilder(context).build()
-                    ap.setUris(newState.audios.map { it.uri }.toTypedArray())
+                    ap.setUris(newState.audios.map { it.uri })
                     ap.seekTo(newState.index, 0)
                 } else {
                     if(newState.paused) {
@@ -160,7 +160,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
                     audioDownloads.state.value?.paused == true,
                     download?.progress ?: 0f
                 )
-            }.toTypedArray(),
+            },
             this.ap.currentIndex,
             !this.ap.started,
             this.ap.currentPosition,

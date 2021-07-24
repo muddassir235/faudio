@@ -54,7 +54,7 @@ class TestAudioState {
     fun testStart() {
         val started = start(audioState)
         assertTrue(started == ExpectedAudioState(
-            audioState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            audioState.audios.map(actualAudioItemToExpectedAudioItem),
             audioState.index,
             false,
             audioState.progress,
@@ -80,7 +80,7 @@ class TestAudioState {
 
         val paused = pause(modifiedActualState)
         assertTrue(paused == ExpectedAudioState(
-            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem),
             modifiedActualState.index,
             true,
             modifiedActualState.progress,
@@ -105,7 +105,7 @@ class TestAudioState {
 
         val stopped = stop(modifiedActualState)
         assertTrue(stopped == ExpectedAudioState(
-            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem),
             modifiedActualState.index,
             true,
             modifiedActualState.progress,
@@ -120,7 +120,7 @@ class TestAudioState {
 
         val next = next(audioState)
         assertTrue(next == ExpectedAudioState(
-            audioState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            audioState.audios.map(actualAudioItemToExpectedAudioItem),
             nextIndex,
             false,
             0,
@@ -147,7 +147,7 @@ class TestAudioState {
 
         val prev = prev(modifiedActualState)
         assertTrue(prev == ExpectedAudioState(
-            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem),
             prevIndex,
             false,
             0,
@@ -160,7 +160,7 @@ class TestAudioState {
     fun testSeekTo() {
         val seeked = seekTo(audioState, 100000)
         assertTrue(seeked == ExpectedAudioState(
-            audioState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            audioState.audios.map(actualAudioItemToExpectedAudioItem),
             audioState.index,
             false,
             100000,
@@ -173,7 +173,7 @@ class TestAudioState {
     fun testMoveToIndex() {
         val moved = moveToIndex(audioState, 3)
         assertTrue(moved == ExpectedAudioState(
-            audioState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            audioState.audios.map(actualAudioItemToExpectedAudioItem),
             3,
             false,
             0,
@@ -198,7 +198,7 @@ class TestAudioState {
 
         val restarted = restart(modifiedActualState)
         assertTrue(restarted == ExpectedAudioState(
-            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+            modifiedActualState.audios.map(actualAudioItemToExpectedAudioItem),
             modifiedActualState.index,
             false,
             0,
@@ -211,7 +211,7 @@ class TestAudioState {
     fun testShuffle() {
         val shuffled = shuffle(audioState)
 
-        assertTrue(shuffled.audios.contentEquals(audioState.audios))
+        assertTrue(shuffled.audios == audioState.audios)
         assertEquals(shuffled.paused, false)
         assertEquals(shuffled.progress, 0)
         assertEquals(shuffled.speed, audioState.speed)
@@ -261,7 +261,7 @@ class TestAudioState {
         assertTrue(actualSeekedState.changeType(actualRestartedState) == AudioStateChangeTypes.RESTART)
 
         val urisChangedState = ActualAudioState(
-            arrayOf(),
+            emptyList(),
             audioState.index,
             audioState.paused,
             audioState.progress,
@@ -280,7 +280,7 @@ class TestAudioState {
         return ActualAudioState(
             expectedState.audios.map {
                 ActualAudioItem(it.uri, it.download, false, 0f)
-            }.toTypedArray(),
+            },
             expectedState.index,
             expectedState.paused,
             expectedState.progress,

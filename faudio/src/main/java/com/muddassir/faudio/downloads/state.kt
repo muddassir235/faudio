@@ -35,7 +35,7 @@ internal data class ExpectedDownloadItemState(
 }
 
 internal data class ActualDownloadState(
-    val downloads: Array<ActualDownloadItemState>,
+    val downloads: List<ActualDownloadItemState>,
     val paused: Boolean
 ) {
     override fun equals(other: Any?): Boolean {
@@ -44,14 +44,14 @@ internal data class ActualDownloadState(
 
         other as ActualDownloadState
 
-        if (!downloads.contentEquals(other.downloads)) return false
+        if (downloads != other.downloads) return false
         if (paused != other.paused) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = downloads.contentHashCode()
+        var result = downloads.hashCode()
         result = 31 * result + paused.hashCode()
         return result
     }
@@ -62,7 +62,7 @@ internal data class ActualDownloadState(
 }
 
 internal data class ExpectedDownloadState(
-    val downloads: Array<ExpectedDownloadItemState>,
+    val downloads: List<ExpectedDownloadItemState>,
     val paused: Boolean
 ) {
     override fun equals(other: Any?): Boolean {
@@ -71,14 +71,14 @@ internal data class ExpectedDownloadState(
 
         other as ExpectedDownloadState
 
-        if (!downloads.contentEquals(other.downloads)) return false
+        if (downloads != other.downloads) return false
         if (paused != other.paused) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = downloads.contentHashCode()
+        var result = downloads.hashCode()
         result = 31 * result + paused.hashCode()
         return result
     }

@@ -5,7 +5,7 @@ import com.google.android.exoplayer2.MediaItem
 
 val start: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
-        audios = it.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = it.audios.map(actualAudioItemToExpectedAudioItem),
         index = it.index,
         paused = false,
         progress = it.progress,
@@ -18,7 +18,7 @@ val startAndDownload: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
         audios = it.audios.mapIndexed{ index, audioItem ->
             ExpectedAudioItem(audioItem.uri, audioItem.download || index == it.index)
-        }.toTypedArray(),
+        },
         index = it.index,
         paused = false,
         progress = it.progress,
@@ -31,7 +31,7 @@ val downloadCurrent: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
         audios = it.audios.mapIndexed{ index, audioItem ->
             ExpectedAudioItem(audioItem.uri, audioItem.download || index == it.index)
-        }.toTypedArray(),
+        },
         index = it.index,
         paused = it.paused,
         progress = it.progress,
@@ -42,7 +42,7 @@ val downloadCurrent: ((ActualAudioState) -> ExpectedAudioState) = {
 
 val pause: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
-        audios = it.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = it.audios.map(actualAudioItemToExpectedAudioItem),
         index = it.index,
         paused = true,
         progress = it.progress,
@@ -53,7 +53,7 @@ val pause: ((ActualAudioState) -> ExpectedAudioState) = {
 
 val stop: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
-        audios = it.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = it.audios.map(actualAudioItemToExpectedAudioItem),
         index = it.index,
         paused = true,
         progress = 0,
@@ -66,7 +66,7 @@ val next: ((ActualAudioState) -> ExpectedAudioState) = {
     val nextIndex = (it.index+1)%it.audios.size
 
     ExpectedAudioState(
-        audios = it.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = it.audios.map(actualAudioItemToExpectedAudioItem),
         index = nextIndex,
         paused = false,
         progress = 0,
@@ -81,7 +81,7 @@ val nextAndDownload: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
         audios = it.audios.mapIndexed{ index, audioItem ->
             ExpectedAudioItem(audioItem.uri, audioItem.download || index == nextIndex)
-        }.toTypedArray(),
+        },
         index = nextIndex,
         paused = false,
         progress = 0,
@@ -95,7 +95,7 @@ val prev: ((ActualAudioState) -> ExpectedAudioState) = {
     val prevIndex = (it.index-1)%it.audios.size
 
     ExpectedAudioState(
-        audios = it.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = it.audios.map(actualAudioItemToExpectedAudioItem),
         index = prevIndex,
         paused = false,
         progress = 0,
@@ -110,7 +110,7 @@ val prevAndDownload: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
         audios = it.audios.mapIndexed{ index, audioItem ->
             ExpectedAudioItem(audioItem.uri, audioItem.download || index == prevIndex)
-        }.toTypedArray(),
+        },
         index = prevIndex,
         paused = false,
         progress = 0,
@@ -121,7 +121,7 @@ val prevAndDownload: ((ActualAudioState) -> ExpectedAudioState) = {
 
 val moveToIndex = { currentState: ActualAudioState, index: Int ->
     ExpectedAudioState(
-        audios = currentState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = currentState.audios.map(actualAudioItemToExpectedAudioItem),
         index = index,
         paused = false,
         progress = 0,
@@ -134,7 +134,7 @@ val moveToIndexAndDownload = { currentState: ActualAudioState, index: Int ->
     ExpectedAudioState(
         audios = currentState.audios.mapIndexed{ mapIndex, audioItem ->
             ExpectedAudioItem(audioItem.uri, audioItem.download || mapIndex == index)
-        }.toTypedArray(),
+        },
         index = index,
         paused = false,
         progress = 0,
@@ -147,7 +147,7 @@ val downloadIndex = { currentState: ActualAudioState, index: Int ->
     ExpectedAudioState(
         audios = currentState.audios.mapIndexed{ mapIndex, audioItem ->
             ExpectedAudioItem(audioItem.uri, audioItem.download || mapIndex == index)
-        }.toTypedArray(),
+        },
         index = currentState.index,
         paused = currentState.paused,
         progress = currentState.progress,
@@ -158,7 +158,7 @@ val downloadIndex = { currentState: ActualAudioState, index: Int ->
 
 val seekTo = { currentState: ActualAudioState, millis: Long ->
     ExpectedAudioState(
-        audios = currentState.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = currentState.audios.map(actualAudioItemToExpectedAudioItem),
         index = currentState.index,
         paused = false,
         progress = millis,
@@ -169,7 +169,7 @@ val seekTo = { currentState: ActualAudioState, millis: Long ->
 
 val restart: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
-        audios = it.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = it.audios.map(actualAudioItemToExpectedAudioItem),
         index = it.index,
         paused = false,
         progress = 0,
@@ -182,7 +182,7 @@ val shuffle: ((ActualAudioState) -> ExpectedAudioState) = {
     val randIndex = it.audios.indices.shuffled().last()
 
     ExpectedAudioState(
-        audios = it.audios.map(actualAudioItemToExpectedAudioItem).toTypedArray(),
+        audios = it.audios.map(actualAudioItemToExpectedAudioItem),
         index = randIndex,
         paused = false,
         progress = 0,

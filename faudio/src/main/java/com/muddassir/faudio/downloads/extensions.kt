@@ -20,5 +20,5 @@ internal val DownloadManager.downloadState: ActualDownloadState get() {
             ActualDownloadItemState(cursor.download.request.uri, cursor.download.percentDownloaded)
         )
     }
-    return ActualDownloadState(downloadsList.toTypedArray(), this.downloadsPaused)
+    return ActualDownloadState(downloadsList, this.downloadsPaused)
 }

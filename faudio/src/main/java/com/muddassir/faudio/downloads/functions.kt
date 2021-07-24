@@ -9,7 +9,7 @@ internal val actualToExpected: ((ActualDownloadItemState) -> ExpectedDownloadIte
 
 internal val addDownload = { actualDownloadState: ActualDownloadState, uri: Uri ->
     if(actualDownloadState.downloads.count { it.uri == uri } > 0) {
-        ExpectedDownloadState(actualDownloadState.downloads.map(actualToExpected).toTypedArray(),
+        ExpectedDownloadState(actualDownloadState.downloads.map(actualToExpected),
             actualDownloadState.paused)
     } else {
         val expectedDownloads = actualDownloadState.downloads.map(actualToExpected).toMutableList()
@@ -17,24 +17,24 @@ internal val addDownload = { actualDownloadState: ActualDownloadState, uri: Uri 
 
         expectedDownloads.add(newExpectedDownloaded)
 
-        ExpectedDownloadState(expectedDownloads.toTypedArray(), actualDownloadState.paused)
+        ExpectedDownloadState(expectedDownloads, actualDownloadState.paused)
     }
 }
 
 internal val stopDownload = { actualDownloadState: ActualDownloadState, uri: Uri ->
     ExpectedDownloadState(
-        actualDownloadState.downloads.filter { it.uri != uri }.map(actualToExpected).toTypedArray(),
+        actualDownloadState.downloads.filter { it.uri != uri }.map(actualToExpected),
         actualDownloadState.paused
     )
 }
 
 internal val pause = { actualDownloadState: ActualDownloadState ->
-    ExpectedDownloadState(actualDownloadState.downloads.map(actualToExpected).toTypedArray(),
+    ExpectedDownloadState(actualDownloadState.downloads.map(actualToExpected),
         paused = true)
 }
 
 internal val resume = { actualDownloadState: ActualDownloadState ->
-    ExpectedDownloadState(actualDownloadState.downloads.map(actualToExpected).toTypedArray(),
+    ExpectedDownloadState(actualDownloadState.downloads.map(actualToExpected),
         paused = false)
 }
 
