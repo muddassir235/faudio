@@ -7,6 +7,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -14,12 +15,16 @@ import kotlinx.coroutines.flow.onEach
 import com.muddassir.faudio.FocusManager.FocusAudioAction.*
 import com.muddassir.faudio.downloads.AudioDownloads
 import com.muddassir.faudio.downloads.addDownload
+import com.muddassir.faudio.downloads.dependencyProvider
 
 class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null) {
     private val scope: CoroutineScope = lifecycleOwner?.lifecycleScope
         ?: (context as? AppCompatActivity)?.lifecycleScope ?: GlobalScope
 
-    private var ap = AudioProducerBuilder(context).build()
+    private var ap = AudioProducerBuilder(context).setMediaSourceFactory(
+        DefaultMediaSourceFactory(dependencyProvider(context).cacheDataSourceFactory)
+    ).build()
+
     private val audioDownloads = AudioDownloads(context, lifecycleOwner)
 
     private val fm = FocusManager(context) {

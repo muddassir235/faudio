@@ -3,6 +3,7 @@ package com.muddassir.faudio.downloads
 import android.content.Context
 import com.google.android.exoplayer2.database.ExoDatabaseProvider
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 
@@ -16,6 +17,9 @@ internal class DependencyProvider(context: Context): DependencyProviderInterface
         context.cacheDir, NoOpCacheEvictor(), databaseProvider)
     val dataSourceFactory = DefaultHttpDataSource.Factory();
     val downloadExecutor = Runnable::run
+    val cacheDataSourceFactory = CacheDataSource.Factory().setCache(downloadCache)
+        .setUpstreamDataSourceFactory(dataSourceFactory)
+        .setCacheWriteDataSinkFactory(null); // Disable writing.
 }
 
 internal fun dependencyProvider(context: Context): DependencyProvider {

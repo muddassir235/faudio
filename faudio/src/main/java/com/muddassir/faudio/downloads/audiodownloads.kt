@@ -114,9 +114,7 @@ internal class AudioDownloads(context: Context, lifecycleOwner: LifecycleOwner? 
 
     private fun trackProgress() = scope.launch {
         while (true) {
-            withContext(Dispatchers.Main) {
-                _state.value = manager.downloadState
-            }
+            _state.value = manager.downloadState
             delay(200)
         }
     }
