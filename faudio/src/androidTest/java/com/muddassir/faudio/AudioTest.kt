@@ -121,7 +121,7 @@ class AudioTest {
             background {
                 assertTrue(audio.changeState {
                     ExpectedAudioState(
-                        otherUris,
+                        otherUris.map { uri -> ExpectedAudioItem(uri, false) }.toTypedArray(),
                         it.index,
                         it.paused,
                         0,

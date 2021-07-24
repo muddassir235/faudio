@@ -11,8 +11,6 @@ internal val AudioProducer.started      : Boolean     get() = this.playbackState
 internal val AudioProducer.speed        : Float       get() = this.playbackParameters.speed
 internal val AudioProducer.stopped      : Boolean     get() = this.playbackState == Player.STATE_IDLE || this.playbackState == Player.STATE_ENDED
 internal val AudioProducer.error        : String?     get() = this.playerError?.localizedMessage
-internal val AudioProducer.audioState   : ActualAudioState get() = ActualAudioState(this.uris, this.currentIndex, !this.started, this.currentPosition, this.speed,
-    this.bufferedPosition, this.duration, this.stopped, this.error)
 
 internal fun AudioProducer.resume() { if(!stopped) this.play() }
 internal fun AudioProducer.startCheckFocus(focused: Boolean) { if(focused) this.play() }
@@ -59,7 +57,7 @@ data class AudioStateDiff(
 )
 
 fun ActualAudioState.changeType(next: ActualAudioState): String {
-    return if(!this.uris.contentEquals(next.uris))
+    return if(!this.audios.contentEquals(next.audios))
         AudioStateChangeTypes.URIS_CHANGED
     else if(this.stopped != next.stopped && next.stopped)
         AudioStateChangeTypes.STOP
@@ -80,7 +78,7 @@ fun ActualAudioState.changeType(next: ActualAudioState): String {
         AudioStateChangeTypes.SEEK
     else if(this.paused == next.paused && this.stopped == next.stopped &&
         this.index == next.index && this.progress == next.progress
-        && this.uris.contentEquals(next.uris))
+        && this.audios.contentEquals(next.audios))
         AudioStateChangeTypes.UNCHANGED
     else AudioStateChangeTypes.UNKNOWN
 }

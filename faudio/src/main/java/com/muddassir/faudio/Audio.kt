@@ -12,12 +12,16 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import com.muddassir.faudio.FocusManager.FocusAudioAction.*
+import com.muddassir.faudio.downloads.AudioDownloads
+import com.muddassir.faudio.downloads.addDownload
 
 class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null) {
     private val scope: CoroutineScope = lifecycleOwner?.lifecycleScope
         ?: (context as? AppCompatActivity)?.lifecycleScope ?: GlobalScope
 
     private var ap = AudioProducerBuilder(context).build()
+    private val audioDownloads = AudioDownloads(context, lifecycleOwner)
+
     private val fm = FocusManager(context) {
         when(it) {
             STOP -> ap.stop()
@@ -35,11 +39,18 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
 
     suspend fun setState(newState: ExpectedAudioState): Boolean {
         withContext(Dispatchers.Main) {
-            val currState = ap.audioState
+            val currState = audioState
 
             // uris
-            if (!newState.uris.contentEquals(currState.uris)) {
-                ap.setUris(newState.uris)
+            if (!newState.audios.contentEquals(currState.audios)) {
+                ap.setUris(newState.audios.map {
+                    if(it.download) {
+                        audioDownloads.changeState { downloadState ->
+                            addDownload(downloadState, it.uri)
+                        }
+                    }
+                    it.uri
+                }.toTypedArray())
                 ap.seekTo(newState.index, 0)
             }
 
@@ -49,7 +60,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
                     ap.release()
 
                     ap = AudioProducerBuilder(context).build()
-                    ap.setUris(newState.uris)
+                    ap.setUris(newState.audios.map { it.uri }.toTypedArray())
                     ap.seekTo(newState.index, 0)
                 } else {
                     if(newState.paused) {
@@ -127,10 +138,33 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
     private fun trackProgress() = scope.launch {
         while (true) {
             withContext(Dispatchers.Main) {
-                _state.value = ap.audioState
+                _state.value = audioState
             }
             delay(200)
         }
+    }
+
+    private val audioState  : ActualAudioState get() {
+        return ActualAudioState(
+            this.ap.uris.map { uri ->
+                val download = audioDownloads.state.value?.downloads?.find { it.uri == uri }
+
+                ActualAudioItem(
+                    uri,
+                    download != null,
+                    audioDownloads.state.value?.paused == true,
+                    download?.progress ?: 0f
+                )
+            }.toTypedArray(),
+            this.ap.currentIndex,
+            !this.ap.started,
+            this.ap.currentPosition,
+            this.ap.speed,
+            this.ap.bufferedPosition,
+            this.ap.duration,
+            this.ap.stopped,
+            this.ap.error
+        )
     }
 
     fun release() = this.ap.release()

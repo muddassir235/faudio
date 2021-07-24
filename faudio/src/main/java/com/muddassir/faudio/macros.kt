@@ -27,6 +27,12 @@ fun uris(vararg uriStrings: String): Array<Uri> {
     return Array(uriStrings.size) { Uri.parse(uriStrings[it]) }
 }
 
+fun audios(vararg uriStrings: String): Array<ActualAudioItem> {
+    return Array(uriStrings.size) { Uri.parse(uriStrings[it]) }.map {
+        ActualAudioItem(it, false, false, 0f)
+    }.toTypedArray()
+}
+
 internal fun AudioManager.requestFocus(focusChangeListener: AudioManager.OnAudioFocusChangeListener)
         : Int {
     val result = AudioManagerCompat.requestAudioFocus(

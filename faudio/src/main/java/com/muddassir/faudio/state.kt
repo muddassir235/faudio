@@ -2,8 +2,38 @@ package com.muddassir.faudio
 
 import android.net.Uri
 
+data class ActualAudioItem(
+    val uri: Uri,
+    val download: Boolean,
+    val downloadPaused: Boolean,
+    val downloadProgress: Float
+) {
+    override fun equals(other: Any?): Boolean {
+        return this.uri == (other as? ExpectedAudioItem)?.uri
+                || this.uri == (other as? ActualAudioItem)?.uri
+    }
+
+    override fun hashCode(): Int {
+        return uri.hashCode()
+    }
+}
+
+data class ExpectedAudioItem(
+    val uri: Uri,
+    val download: Boolean
+) {
+    override fun equals(other: Any?): Boolean {
+        return this.uri == (other as? ExpectedAudioItem)?.uri
+                || this.uri == (other as? ActualAudioItem)?.uri
+    }
+
+    override fun hashCode(): Int {
+        return uri.hashCode()
+    }
+}
+
 data class ExpectedAudioState(
-    val uris: Array<Uri>,
+    val audios: Array<ExpectedAudioItem>,
     val index: Int,
     val paused: Boolean,
     val progress: Long,
@@ -19,7 +49,7 @@ data class ExpectedAudioState(
 
         when(other) {
             is ExpectedAudioState -> {
-                if (!uris.contentEquals(other.uris)) return false
+                if (!audios.contentEquals(other.audios)) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress != other.progress) return false
@@ -31,7 +61,7 @@ data class ExpectedAudioState(
             is ActualAudioState -> {
                 val progressTolerance = 10000L
 
-                if (!uris.contentEquals(other.uris)) return false
+                if (!audios.contentEquals(other.audios)) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -45,7 +75,7 @@ data class ExpectedAudioState(
     }
 
     override fun hashCode(): Int {
-        var result = uris.contentHashCode()
+        var result = audios.contentHashCode()
         result = 31 * result + index
         result = 31 * result + paused.hashCode()
         result = 31 * result + progress.hashCode()
@@ -60,7 +90,7 @@ data class ExpectedAudioState(
 
         fun defaultStateWithUris(uris: Array<Uri>): ExpectedAudioState {
             return ExpectedAudioState(
-                uris,
+                uris.map { ExpectedAudioItem(it, false) }.toTypedArray(),
                 DEFAULT.index,
                 DEFAULT.paused,
                 DEFAULT.progress,
@@ -72,7 +102,7 @@ data class ExpectedAudioState(
 }
 
 data class ActualAudioState(
-    val uris                 : Array<Uri>,
+    val audios               : Array<ActualAudioItem>,
     val index                : Int,
     val paused               : Boolean,
     val progress             : Long,
@@ -93,7 +123,7 @@ data class ActualAudioState(
             is ExpectedAudioState -> {
                 val progressTolerance = 10000L
 
-                if (!uris.contentEquals(other.uris)) return false
+                if (!audios.contentEquals(other.audios)) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -105,7 +135,7 @@ data class ActualAudioState(
             is ActualAudioState -> {
                 val progressTolerance = 10000L
 
-                if (!uris.contentEquals(other.uris)) return false
+                if (!audios.contentEquals(other.audios)) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -119,7 +149,7 @@ data class ActualAudioState(
     }
 
     override fun hashCode(): Int {
-        var result = uris.contentHashCode()
+        var result = audios.contentHashCode()
         result = 31 * result + index
         result = 31 * result + paused.hashCode()
         result = 31 * result + ((progress+5000/10000)*10000).hashCode()
