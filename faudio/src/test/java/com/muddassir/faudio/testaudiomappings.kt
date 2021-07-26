@@ -25,7 +25,7 @@ class TestAudioMappings {
         val uri = makeUri()
 
         val actualAudioItem = ActualAudioItem(uri, true, false, 50.0f)
-        val expectedAudioItem = actualAudioItemToExpectedAudioItem(actualAudioItem)
+        val expectedAudioItem = actualToExpected(actualAudioItem)
 
         assertTrue(actualAudioItem.uri == expectedAudioItem.uri)
         assertTrue(actualAudioItem.download == expectedAudioItem.download)
