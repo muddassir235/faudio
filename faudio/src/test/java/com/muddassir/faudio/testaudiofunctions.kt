@@ -12,16 +12,10 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-
 @RunWith(PowerMockRunner::class)
 @PrepareForTest(Uri::class)
 @PowerMockIgnore("jdk.internal.reflect.*")
-class TestAudioState {
+class TestAudioFunctions {
     private lateinit var audioState: ActualAudioState
     
     @Before
@@ -158,7 +152,7 @@ class TestAudioState {
 
     @Test
     fun testSeekTo() {
-        val seeked = seekTo(audioState, 100000)
+        val seeked = seekTo.invoke(audioState, 100000)
         assertTrue(seeked == ExpectedAudioState(
             audioState.audios.map(actualAudioItemToExpectedAudioItem),
             audioState.index,

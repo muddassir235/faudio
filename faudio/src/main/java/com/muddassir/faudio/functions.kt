@@ -1,8 +1,5 @@
 package com.muddassir.faudio
 
-import android.net.Uri
-import com.google.android.exoplayer2.MediaItem
-
 val start: ((ActualAudioState) -> ExpectedAudioState) = {
     ExpectedAudioState(
         audios = it.audios.map(actualAudioItemToExpectedAudioItem),
@@ -189,10 +186,4 @@ val shuffle: ((ActualAudioState) -> ExpectedAudioState) = {
         speed = it.speed,
         stopped = false
     )
-}
-
-internal val uriToMediaItem: ((Uri) -> MediaItem) = { MediaItem.fromUri(it) }
-
-internal val actualAudioItemToExpectedAudioItem: ((ActualAudioItem) -> ExpectedAudioItem) = {
-    ExpectedAudioItem(it.uri, it.download)
 }
