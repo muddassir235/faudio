@@ -18,25 +18,15 @@ import com.muddassir.faudio.downloads.AudioDownloads
 import com.muddassir.faudio.downloads.addDownload
 import com.muddassir.faudio.downloads.dependencyProvider
 import com.muddassir.faudio.downloads.resume
-import com.muddassir.faudio.resume
 
 class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null) {
     private val scope: CoroutineScope = lifecycleOwner?.lifecycleScope
         ?: (context as? AppCompatActivity)?.lifecycleScope ?: GlobalScope
 
-    private var ap = AudioProducerBuilder(context).setMediaSourceFactory(
-        DefaultMediaSourceFactory(dependencyProvider(context).cacheDataSourceFactory)
-    ).build()
+    private var producer = buildAudioProducer()
 
     private val audioDownloads = AudioDownloads(context, lifecycleOwner)
-
-    private val fm = FocusManager(context) {
-        when(it) {
-            STOP -> ap.stop()
-            PAUSE -> ap.pause()
-            RESUME -> ap.resume()
-        }
-    }
+    private val focusManager = buildFocusManager()
 
     private val _state = MutableLiveData<ActualAudioState>()
     val state: LiveData<ActualAudioState> = _state
@@ -45,14 +35,30 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         trackProgress()
     }
 
+    private fun buildAudioProducer(): AudioProducer {
+        return  AudioProducerBuilder(context).setMediaSourceFactory(
+            DefaultMediaSourceFactory(dependencyProvider(context).cacheDataSourceFactory)
+        ).build()
+    }
+
+    private fun buildFocusManager(): FocusManager {
+        return FocusManager(context) {
+            when(it) {
+                STOP -> producer.stop()
+                PAUSE -> producer.pause()
+                RESUME -> producer.resume()
+            }
+        }
+    }
+
     suspend fun setState(newState: ExpectedAudioState): Boolean {
         withContext(Dispatchers.Main) {
             val currState = audioState
 
             // uris
             if (newState.audios != currState.audios) {
-                ap.setUris(newState.audios.map { it.uri })
-                ap.seekTo(newState.index, 0)
+                producer.setUris(newState.audios.map { it.uri })
+                producer.seekTo(newState.index, 0)
             }
 
             // download
@@ -67,16 +73,16 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
             // stopped
             if (newState.stopped != currState.stopped) {
                 if (newState.stopped) {
-                    ap.release()
+                    producer.release()
 
-                    ap = AudioProducerBuilder(context).build()
-                    ap.setUris(newState.audios.map { it.uri })
-                    ap.seekTo(newState.index, 0)
+                    producer = buildAudioProducer()
+                    producer.setUris(newState.audios.map { it.uri })
+                    producer.seekTo(newState.index, 0)
                 } else {
                     if(newState.paused) {
-                        ap.pause()
+                        producer.pause()
                     } else {
-                        ap.startCheckFocus(fm.focused)
+                        producer.startCheckFocus(focusManager.focused)
                     }
                 }
             }
@@ -84,21 +90,21 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
             // paused
             if (newState.paused != currState.paused) {
                 if(newState.paused) {
-                    ap.pause()
+                    producer.pause()
                 } else {
-                    ap.startCheckFocus(fm.focused)
+                    producer.startCheckFocus(focusManager.focused)
                 }
             }
 
             // index, progress
             when {
-                newState.index != currState.index -> ap.seekTo(newState.index, newState.progress)
-                newState.progress != currState.progress -> ap.seekTo(newState.progress)
+                newState.index != currState.index -> producer.seekTo(newState.index, newState.progress)
+                newState.progress != currState.progress -> producer.seekTo(newState.progress)
             }
 
             // speed
             if (newState.speed != currState.speed) {
-                ap.setAudioSpeed(newState.speed)
+                producer.setAudioSpeed(newState.speed)
             }
         }
 
@@ -156,7 +162,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
 
     private val audioState  : ActualAudioState get() {
         return ActualAudioState(
-            this.ap.uris.map { uri ->
+            this.producer.uris.map { uri ->
                 val download = audioDownloads.state.value?.downloads?.find { it.uri == uri }
 
                 ActualAudioItem(
@@ -166,16 +172,16 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
                     downloadProgress = download?.progress ?: 0f
                 )
             },
-            this.ap.currentIndex,
-            !this.ap.started,
-            this.ap.currentPosition,
-            this.ap.speed,
-            this.ap.bufferedPosition,
-            this.ap.duration,
-            this.ap.stopped,
-            this.ap.error
+            this.producer.currentIndex,
+            !this.producer.started,
+            this.producer.currentPosition,
+            this.producer.speed,
+            this.producer.bufferedPosition,
+            this.producer.duration,
+            this.producer.stopped,
+            this.producer.error
         )
     }
 
-    fun release() = this.ap.release()
+    fun release() = this.producer.release()
 }
