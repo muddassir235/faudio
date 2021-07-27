@@ -7,6 +7,11 @@ internal val expectedDownloadStateToDownloadRequest:
     DownloadRequest.Builder(it.uri.toString(), it.uri).build()
 }
 
-internal val actualToExpected: ((ActualDownloadItemState) -> ExpectedDownloadItemState) = {
+internal val actualToExpectedItem: ((ActualDownloadItemState) -> ExpectedDownloadItemState) = {
     ExpectedDownloadItemState(it.uri)
+}
+
+internal val expectedToActualState: ((ExpectedDownloadState) -> ActualDownloadState) = {
+    ActualDownloadState(it.downloads.map { ActualDownloadItemState(it.uri, 0.0f) },
+        it.paused)
 }

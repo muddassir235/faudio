@@ -22,3 +22,8 @@ internal val DownloadManager.downloadState: ActualDownloadState get() {
     }
     return ActualDownloadState(downloadsList, this.downloadsPaused)
 }
+
+internal infix fun ((ActualDownloadState) -> ExpectedDownloadState).then(
+    other: ((ActualDownloadState) -> ExpectedDownloadState)): ((ActualDownloadState) -> ExpectedDownloadState) = {
+    other(expectedToActualState(this(it)))
+}

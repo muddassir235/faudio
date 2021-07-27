@@ -50,13 +50,13 @@ class TestAudioStateChangeTypes {
 
         Assert.assertTrue(audioState.changeType(actualStartedState) == AudioStateChangeTypes.START)
 
-        val startedAndDownloading = startAndDownload(audioState)
+        val startedAndDownloading = (start then download)(audioState)
         val actualStartedAndDownloadingState = mockActualStateFromExpectedState(startedAndDownloading)
 
         Assert.assertTrue(audioState.changeType(actualStartedAndDownloadingState)
                 == AudioStateChangeTypes.START_AND_DOWNLOAD)
 
-        val downloading = downloadCurrent(audioState)
+        val downloading = download(audioState)
         val actualDownloadingState = mockActualStateFromExpectedState(downloading)
 
         Assert.assertTrue(audioState.changeType(actualDownloadingState)
@@ -74,24 +74,24 @@ class TestAudioStateChangeTypes {
         Assert.assertTrue(actualPausedState.changeType(actualStoppedState)
                 == AudioStateChangeTypes.STOP)
 
-        val next = next(actualStartedState)
-        val actualNextState = mockActualStateFromExpectedState(next)
+        val nextState = moveToNext(actualStartedState)
+        val actualNextState = mockActualStateFromExpectedState(nextState)
 
         Assert.assertTrue(actualStartedState.changeType(actualNextState)
                 == AudioStateChangeTypes.NEXT)
 
-        val nextAndDownloading = nextAndDownload(actualStartedState)
+        val nextAndDownloading = (moveToNext then download)(actualStartedState)
         val actualNextAndDownloadingState = mockActualStateFromExpectedState(nextAndDownloading)
 
         Assert.assertTrue(actualStartedState.changeType(actualNextAndDownloadingState)
                 == AudioStateChangeTypes.NEXT_AND_DOWNLOAD)
 
-        val prev = prev(actualNextState)
-        val actualPrevState = mockActualStateFromExpectedState(prev)
+        val prevState = moveToPrev(actualNextState)
+        val actualPrevState = mockActualStateFromExpectedState(prevState)
 
         Assert.assertTrue(actualNextState.changeType(actualPrevState) == AudioStateChangeTypes.PREV)
 
-        val prevAndDownloading = prevAndDownload(actualNextState)
+        val prevAndDownloading = (moveToPrev then download)(actualNextState)
         val actualPrevAndDownloadingState = mockActualStateFromExpectedState(prevAndDownloading)
 
         Assert.assertTrue(actualNextState.changeType(actualPrevAndDownloadingState)
@@ -109,7 +109,7 @@ class TestAudioStateChangeTypes {
         Assert.assertTrue(actualStartedState.changeType(actualMovedState)
                 == AudioStateChangeTypes.MOVE_TO_INDEX)
 
-        val movedAndDownloading = moveToIndexAndDownload(actualStartedState, 2)
+        val movedAndDownloading = ({ a: ActualAudioState -> moveToIndex(a, 2) } then download)(actualStartedState)
         val actualMovedAndDownloadingState = mockActualStateFromExpectedState(movedAndDownloading)
 
         Assert.assertTrue(actualStartedState.changeType(actualMovedAndDownloadingState)

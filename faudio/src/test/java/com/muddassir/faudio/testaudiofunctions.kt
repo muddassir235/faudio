@@ -48,7 +48,7 @@ class TestAudioFunctions {
     fun testStart() {
         val started = start(audioState)
         val expectedState = ExpectedAudioState(
-            audioState.audios.map(actualToExpected),
+            audioState.audios.map(actualToExpectedItem),
             audioState.index,
             false,
             audioState.progress,
@@ -63,7 +63,7 @@ class TestAudioFunctions {
 
     @Test
     fun testStartAndDownload() {
-        val started = startAndDownload(audioState)
+        val started = (start then download)(audioState)
         val expectedState = ExpectedAudioState(
             audioState.audios.mapIndexed{ index, audioItem ->
                 ExpectedAudioItem(audioItem.uri, audioItem.download
@@ -82,7 +82,7 @@ class TestAudioFunctions {
 
     @Test
     fun testDownloadCurrent() {
-        val download = downloadCurrent(audioState)
+        val download = download(audioState)
         val expectedState = ExpectedAudioState(
             audioState.audios.mapIndexed{ index, audioItem ->
                 ExpectedAudioItem(audioItem.uri, audioItem.download
@@ -116,7 +116,7 @@ class TestAudioFunctions {
 
         val paused = pause(modifiedActualState)
         val expectedState = ExpectedAudioState(
-            modifiedActualState.audios.map(actualToExpected),
+            modifiedActualState.audios.map(actualToExpectedItem),
             modifiedActualState.index,
             true,
             modifiedActualState.progress,
@@ -146,7 +146,7 @@ class TestAudioFunctions {
 
         val stopped = stop(modifiedActualState)
         val expectedState = ExpectedAudioState(
-            modifiedActualState.audios.map(actualToExpected),
+            modifiedActualState.audios.map(actualToExpectedItem),
             modifiedActualState.index,
             true,
             modifiedActualState.progress,
@@ -163,9 +163,9 @@ class TestAudioFunctions {
     fun testNext() {
         val nextIndex = (audioState.index+1)%audioState.audios.size
 
-        val next = next(audioState)
+        val next = moveToNext(audioState)
         val expectedState = ExpectedAudioState(
-            audioState.audios.map(actualToExpected),
+            audioState.audios.map(actualToExpectedItem),
             nextIndex,
             false,
             0,
@@ -182,7 +182,7 @@ class TestAudioFunctions {
     fun testNextAndDownload() {
         val nextIndex = (audioState.index+1)%audioState.audios.size
 
-        val next = nextAndDownload(audioState)
+        val next = (moveToNext then download)(audioState)
         val expectedState = ExpectedAudioState(
             audioState.audios.mapIndexed{ index, audioItem ->
                 ExpectedAudioItem(audioItem.uri, audioItem.download || index == nextIndex)
@@ -215,9 +215,9 @@ class TestAudioFunctions {
 
         val prevIndex = (modifiedActualState.index-1)%modifiedActualState.audios.size
 
-        val prev = prev(modifiedActualState)
+        val prev = moveToPrev(modifiedActualState)
         val expectedState = ExpectedAudioState(
-            modifiedActualState.audios.map(actualToExpected),
+            modifiedActualState.audios.map(actualToExpectedItem),
             prevIndex,
             false,
             0,
@@ -246,7 +246,7 @@ class TestAudioFunctions {
 
         val prevIndex = (modifiedActualState.index-1)%modifiedActualState.audios.size
 
-        val prev = prevAndDownload(modifiedActualState)
+        val prev = (moveToPrev then download)(modifiedActualState)
         val expectedState = ExpectedAudioState(
             modifiedActualState.audios.mapIndexed{ index, audioItem ->
                 ExpectedAudioItem(audioItem.uri, audioItem.download || index == prevIndex)
@@ -267,7 +267,7 @@ class TestAudioFunctions {
     fun testMoveToIndex() {
         val moved = moveToIndex(audioState, 2)
         val expectedState = ExpectedAudioState(
-            audioState.audios.map(actualToExpected),
+            audioState.audios.map(actualToExpectedItem),
             2,
             false,
             0,
@@ -282,7 +282,7 @@ class TestAudioFunctions {
 
     @Test
     fun testMoveToIndexAndDownload() {
-        val moved = moveToIndexAndDownload(audioState, 2)
+        val movedAndDownloading = ({ a: ActualAudioState -> moveToIndex(a, 2) }  then download)(audioState)
         val expectedState = ExpectedAudioState(
             audioState.audios.mapIndexed{ mapIndex, audioItem ->
                 ExpectedAudioItem(audioItem.uri, audioItem.download || mapIndex == 2)
@@ -294,8 +294,8 @@ class TestAudioFunctions {
             false
         )
 
-        assertTrue(moved == expectedState)
-        assertTrue(moved.audios[moved.index].download)
+        assertTrue(movedAndDownloading == expectedState)
+        assertTrue(movedAndDownloading.audios[movedAndDownloading.index].download)
         assertTrue(expectedState.audios[expectedState.index].download)
     }
 
@@ -322,7 +322,7 @@ class TestAudioFunctions {
     fun testSeekTo() {
         val seeked = seekTo.invoke(audioState, 100000)
         val expectedState = ExpectedAudioState(
-            audioState.audios.map(actualToExpected),
+            audioState.audios.map(actualToExpectedItem),
             audioState.index,
             false,
             100000,
@@ -351,7 +351,7 @@ class TestAudioFunctions {
 
         val restarted = restart(modifiedActualState)
         val expectedState = ExpectedAudioState(
-            modifiedActualState.audios.map(actualToExpected),
+            modifiedActualState.audios.map(actualToExpectedItem),
             modifiedActualState.index,
             false,
             0,

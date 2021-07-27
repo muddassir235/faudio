@@ -30,7 +30,7 @@ internal class AudioDownloads(context: Context, lifecycleOwner: LifecycleOwner? 
         maxParallelDownloads = 3
     }
 
-    private val manager: DownloadManager = downloadManager
+    private val manager: DownloadManager = downloadManager.apply { resumeDownloads() }
 
     private val _state = MutableLiveData(ActualDownloadState(emptyList(), false))
     val state: LiveData<ActualDownloadState> = _state
@@ -97,7 +97,7 @@ internal class AudioDownloads(context: Context, lifecycleOwner: LifecycleOwner? 
         }.launchIn(scope)
     }
 
-    suspend fun changeState(action: (ActualDownloadState) -> ExpectedDownloadState): Boolean {
+    suspend infix fun should(action: (ActualDownloadState) -> ExpectedDownloadState): Boolean {
         val newState = this.state.value?.change(action) ?: return false
         return this.setState(newState)
     }
@@ -105,7 +105,7 @@ internal class AudioDownloads(context: Context, lifecycleOwner: LifecycleOwner? 
     fun changeStateAsync(action: (ActualDownloadState) -> ExpectedDownloadState,
                          callback: ((Boolean)->Unit)? = null) {
         flow {
-            emit(changeState(action))
+            emit(should(action))
         }.onEach {
             callback?.invoke(it)
         }.launchIn(scope)

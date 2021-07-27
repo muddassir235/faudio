@@ -33,3 +33,8 @@ val Audio.stateDiff: LiveData<AudioStateDiff> get() {
 
     return diffLd
 }
+
+infix fun ((ActualAudioState) -> ExpectedAudioState).then(
+    other: ((ActualAudioState) -> ExpectedAudioState)): ((ActualAudioState) -> ExpectedAudioState) = {
+    other(expectedToActualState(this(it)))
+}

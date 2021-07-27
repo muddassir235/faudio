@@ -5,6 +5,20 @@ import com.google.android.exoplayer2.MediaItem
 
 internal val uriToMediaItem: ((Uri) -> MediaItem) = { MediaItem.fromUri(it) }
 
-internal val actualToExpected: ((ActualAudioItem) -> ExpectedAudioItem) = {
+internal val actualToExpectedItem: ((ActualAudioItem) -> ExpectedAudioItem) = {
     ExpectedAudioItem(it.uri, it.download)
+}
+
+val expectedToActualState: (ExpectedAudioState) -> ActualAudioState = {
+    ActualAudioState(
+        it.audios.map { item -> ActualAudioItem(item.uri, item.download, false, 0.0f) },
+        it.index,
+        it.paused,
+        it.progress,
+        it.speed,
+        0L,
+        0L,
+        it.stopped,
+        null
+    )
 }

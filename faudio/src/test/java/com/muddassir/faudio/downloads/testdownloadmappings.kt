@@ -3,11 +3,8 @@ package com.muddassir.faudio.downloads
 import android.net.Uri
 import com.muddassir.faudio.makeUri
 import junit.framework.TestCase.assertTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Matchers
-import org.powermock.api.mockito.PowerMockito
 import org.powermock.core.classloader.annotations.PowerMockIgnore
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
@@ -28,13 +25,26 @@ class TestDownloadMappings {
     }
 
     @Test
-    fun testActualToExpected() {
+    fun testActualToExpectedItem() {
         val uri = makeUri()
 
         val actualDownloadItemState = ActualDownloadItemState(uri, 100.0f)
 
-        val expectedDownloadItemState = actualToExpected(actualDownloadItemState)
+        val expectedDownloadItemState = actualToExpectedItem(actualDownloadItemState)
         assertTrue(actualDownloadItemState.uri == expectedDownloadItemState.uri)
         assertTrue(actualDownloadItemState.equals(expectedDownloadItemState))
+    }
+
+    @Test
+    fun testExpectedToActualState() {
+        val uri = makeUri()
+
+        val expectedDownloadItem = ExpectedDownloadItemState(uri)
+        val expectedState = ExpectedDownloadState(listOf(expectedDownloadItem), false)
+
+        val actualState = expectedToActualState(expectedState)
+
+        assertTrue(actualState.equals(expectedState))
+        assertTrue(expectedState.equals(actualState))
     }
 }

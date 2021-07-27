@@ -13,9 +13,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import com.muddassir.faudio.FocusManager.FocusAudioAction.*
+import com.muddassir.faudio.downloads.*
 import com.muddassir.faudio.downloads.AudioDownloads
 import com.muddassir.faudio.downloads.addDownload
 import com.muddassir.faudio.downloads.dependencyProvider
+import com.muddassir.faudio.downloads.resume
+import com.muddassir.faudio.resume
 
 class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null) {
     private val scope: CoroutineScope = lifecycleOwner?.lifecycleScope
@@ -48,15 +51,17 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
 
             // uris
             if (newState.audios != currState.audios) {
-                ap.setUris(newState.audios.map {
-                    if(it.download) {
-                        audioDownloads.changeState { downloadState ->
-                            addDownload(downloadState, it.uri)
-                        }
-                    }
-                    it.uri
-                })
+                ap.setUris(newState.audios.map { it.uri })
                 ap.seekTo(newState.index, 0)
+            }
+
+            // download
+            currState.audios.zip(newState.audios).forEach {
+                if(!it.first.download && it.second.download) {
+                    audioDownloads should ({ ds: ActualDownloadState ->
+                        addDownload(ds, it.second.uri)
+                    } then resume)
+                }
             }
 
             // stopped
@@ -127,14 +132,14 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         }.launchIn(scope)
     }
 
-    suspend fun changeState(action: (ActualAudioState) -> ExpectedAudioState): Boolean {
+    suspend infix fun should(action: (ActualAudioState) -> ExpectedAudioState): Boolean {
         val newState = this.state.value?.change(action) ?: return false
         return this.setState(newState)
     }
 
     fun changeStateAsync(action: (ActualAudioState) -> ExpectedAudioState, callback: ((Boolean)->Unit)? = null) {
         flow {
-            emit(changeState(action))
+            emit(should(action))
         }.onEach {
             callback?.invoke(it)
         }.launchIn(scope)
@@ -155,10 +160,10 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
                 val download = audioDownloads.state.value?.downloads?.find { it.uri == uri }
 
                 ActualAudioItem(
-                    uri,
-                    download != null,
-                    audioDownloads.state.value?.paused == true,
-                    download?.progress ?: 0f
+                    uri = uri,
+                    download= download != null,
+                    downloadPaused = audioDownloads.state.value?.paused == true,
+                    downloadProgress = download?.progress ?: 0f
                 )
             },
             this.ap.currentIndex,

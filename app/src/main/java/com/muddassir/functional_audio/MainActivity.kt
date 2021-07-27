@@ -2,8 +2,10 @@ package com.muddassir.functional_audio
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import com.muddassir.faudio.*
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -26,11 +28,21 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             if(audio.setState(ExpectedAudioState.defaultStateWithUris(uris))) {
-                audio.changeState(start)
+                audio should (start then download)
                 delay(10000)
-                audio.changeState(stop)
+                audio should stop
                 delay(10000)
-                audio.changeState(start)
+                audio should start
+            }
+        }
+
+        audio.state.observe(this) {
+            if(it.audios.isNotEmpty()) {
+                Log.e(MainActivity::class.simpleName, "Audio State: $it")
+                val downloadPaused = it.audios[it.index].downloadPaused
+                val downloadProgress = it.audios[it.index].downloadProgress
+
+                textView.text = "Paused: $downloadPaused, Download Progress: $downloadProgress"
             }
         }
     }

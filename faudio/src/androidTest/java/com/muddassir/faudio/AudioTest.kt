@@ -43,53 +43,53 @@ class AudioTest {
     @Test
     @Repeat(repetitions)
     fun testAudioStopStart() = afterAudioStart {
-        assertTrue(audio.changeState(stop))
-        assertTrue(audio.changeState(start))
+        assertTrue(audio should stop)
+        assertTrue(audio should start)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioStartPause() = afterAudioStart {
-        assertTrue(audio.changeState(pause))
+        assertTrue(audio should pause)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioPauseStart() = afterAudioStart {
-        assertTrue(audio.changeState(pause))
-        assertTrue(audio.changeState(start))
+        assertTrue(audio should pause)
+        assertTrue(audio should start)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioPauseStop() = afterAudioStart {
-        assertTrue(audio.changeState(pause))
-        assertTrue(audio.changeState(stop))
+        assertTrue(audio should pause)
+        assertTrue(audio should stop)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioStartStop() = afterAudioStart {
-        assertTrue(audio.changeState(stop))
+        assertTrue(audio should stop)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioNext() = afterAudioStart {
-        assertTrue(audio.changeState(next))
+        assertTrue(audio should moveToNext)
     }
 
 
     @Test
     @Repeat(repetitions)
     fun testAudioPrev() = afterAudioStart {
-        assertTrue(audio.changeState(prev))
+        assertTrue(audio should moveToPrev)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioSeekTo() = afterAudioStart {
-        assertTrue(audio.changeState{
+        assertTrue(audio should {
             seekTo(it, 100000)
         })
     }
@@ -97,7 +97,7 @@ class AudioTest {
     @Test
     @Repeat(repetitions)
     fun testMoveToIndex() = afterAudioStart {
-        assertTrue(audio.changeState{
+        assertTrue(audio should {
             moveToIndex(it, 2)
         })
     }
@@ -105,7 +105,7 @@ class AudioTest {
     @Test
     @Repeat(repetitions)
     fun testRestart() = afterAudioStart {
-        assertTrue(audio.changeState(restart))
+        assertTrue(audio should restart)
     }
 
     @Test
@@ -119,7 +119,7 @@ class AudioTest {
             )
 
             background {
-                assertTrue(audio.changeState {
+                assertTrue(audio should {
                     ExpectedAudioState(
                         otherUris.map { uri -> ExpectedAudioItem(uri, false) },
                         it.index,
@@ -146,8 +146,8 @@ class AudioTest {
 
             background {
                 assertTrue(audio.setState(ExpectedAudioState.defaultStateWithUris(uris)))
-                assertTrue(audio.changeState(start))
-                assertTrue(audio.changeState(next))
+                assertTrue(audio should start)
+                assertTrue(audio should moveToNext)
                 delay(5000)
                 task.invoke(Unit)
             }
