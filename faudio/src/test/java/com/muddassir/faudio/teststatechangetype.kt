@@ -31,7 +31,7 @@ class TestAudioStateChangeTypes {
         )
 
         audioState = ActualAudioState(
-            audios = audios,
+            items = audios,
             index = 0,
             paused = true,
             progress =0L,
@@ -144,7 +144,7 @@ class TestAudioStateChangeTypes {
 
     private fun mockActualStateFromExpectedState(expectedState: ExpectedAudioState): ActualAudioState {
         return ActualAudioState(
-            expectedState.audios.map {
+            expectedState.items.map {
                 ActualAudioItem(it.uri, it.download, false, 0f)
             },
             expectedState.index,

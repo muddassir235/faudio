@@ -37,10 +37,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         audio.state.observe(this) {
-            if(it.audios.isNotEmpty()) {
+            if(it.items.isNotEmpty()) {
                 Log.e(MainActivity::class.simpleName, "Audio State: $it")
-                val downloadPaused = it.audios[it.index].downloadPaused
-                val downloadProgress = it.audios[it.index].downloadProgress
+                val downloadPaused = it.items[it.index].downloadPaused
+                val downloadProgress = it.items[it.index].downloadProgress
 
                 textView.text = "Paused: $downloadPaused, Download Progress: $downloadProgress"
             }

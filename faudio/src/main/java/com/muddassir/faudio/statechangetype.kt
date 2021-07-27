@@ -29,30 +29,30 @@ data class AudioStateDiff(
 )
 
 fun ActualAudioState.changeType(other: ActualAudioState): String {
-    return if(this.audios != other.audios)
+    return if(this.items != other.items)
         AudioStateChangeTypes.URIS_CHANGED
     else if(this.stopped != other.stopped && other.stopped)
         AudioStateChangeTypes.STOP
     else if(this.paused != other.paused && other.paused)
         AudioStateChangeTypes.PAUSE
     else if(this.index != other.index && other.index == this.index+1
-        && other.audios[other.index].download && !this.audios[other.index].download)
+        && other.items[other.index].download && !this.items[other.index].download)
         AudioStateChangeTypes.NEXT_AND_DOWNLOAD
     else if(this.index != other.index && other.index == this.index+1)
         AudioStateChangeTypes.NEXT
     else if(this.index != other.index && other.index == this.index-1
-        && other.audios[other.index].download && !this.audios[other.index].download)
+        && other.items[other.index].download && !this.items[other.index].download)
         AudioStateChangeTypes.PREV_AND_DOWNLOAD
     else if(this.index != other.index && other.index == this.index-1)
         AudioStateChangeTypes.PREV
-    else if(this.index != other.index && !this.audios[other.index].download
-        && other.audios[other.index].download)
+    else if(this.index != other.index && !this.items[other.index].download
+        && other.items[other.index].download)
         AudioStateChangeTypes.MOVE_TO_INDEX_AND_DOWNLOAD
     else if(this.index != other.index)
         AudioStateChangeTypes.MOVE_TO_INDEX
     else if(this.paused != other.paused && !other.paused
-        && !this.audios[this.index].download
-        && other.audios[other.index].download)
+        && !this.items[this.index].download
+        && other.items[other.index].download)
         AudioStateChangeTypes.START_AND_DOWNLOAD
     else if(this.paused != other.paused && !other.paused)
         AudioStateChangeTypes.START
@@ -62,17 +62,17 @@ fun ActualAudioState.changeType(other: ActualAudioState): String {
     else if(this.progress != other.progress)
         AudioStateChangeTypes.SEEK
     else if(this.paused == other.paused && this.stopped == other.stopped &&
-        this.index == other.index && this.progress == other.progress && this.audios == other.audios
-        && !this.audios[this.index].download && other.audios[other.index].download)
+        this.index == other.index && this.progress == other.progress && this.items == other.items
+        && !this.items[this.index].download && other.items[other.index].download)
         AudioStateChangeTypes.DOWNLOAD_CURRENT
     else if(this.paused == other.paused && this.stopped == other.stopped &&
         this.index == other.index && this.progress == other.progress
-        && this.audios == other.audios &&
-        other.audios.count { it.download } == this.audios.count { it.download } + 1)
+        && this.items == other.items &&
+        other.items.count { it.download } == this.items.count { it.download } + 1)
         AudioStateChangeTypes.DOWNLOAD_INDEX
     else if(this.paused == other.paused && this.stopped == other.stopped &&
         this.index == other.index && this.progress == other.progress
-        && this.audios == other.audios)
+        && this.items == other.items)
         AudioStateChangeTypes.UNCHANGED
     else AudioStateChangeTypes.UNKNOWN
 }

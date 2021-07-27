@@ -56,13 +56,13 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
             val currState = audioState
 
             // uris
-            if (newState.audios != currState.audios) {
-                producer.setUris(newState.audios.map { it.uri })
+            if (newState.items != currState.items) {
+                producer.setUris(newState.items.map { it.uri })
                 producer.seekTo(newState.index, 0)
             }
 
             // download
-            currState.audios.zip(newState.audios).forEach {
+            currState.items.zip(newState.items).forEach {
                 if(!it.first.download && it.second.download) {
                     audioDownloads should ({ ds: ActualDownloadState ->
                         addDownload(ds, it.second.uri)
@@ -76,7 +76,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
                     producer.release()
 
                     producer = buildAudioProducer()
-                    producer.setUris(newState.audios.map { it.uri })
+                    producer.setUris(newState.items.map { it.uri })
                     producer.seekTo(newState.index, 0)
                 } else {
                     if(newState.paused) {

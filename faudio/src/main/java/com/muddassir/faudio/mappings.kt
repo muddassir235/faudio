@@ -11,7 +11,7 @@ internal val actualToExpectedItem: ((ActualAudioItem) -> ExpectedAudioItem) = {
 
 val expectedToActualState: (ExpectedAudioState) -> ActualAudioState = {
     ActualAudioState(
-        it.audios.map { item -> ActualAudioItem(item.uri, item.download, false, 0.0f) },
+        it.items.map { item -> ActualAudioItem(item.uri, item.download, false, 0.0f) },
         it.index,
         it.paused,
         it.progress,

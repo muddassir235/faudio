@@ -33,7 +33,7 @@ data class ExpectedAudioItem(
 }
 
 data class ActualAudioState(
-    val audios               : List<ActualAudioItem>,
+    val items                : List<ActualAudioItem>,
     val index                : Int,
     val paused               : Boolean,
     val progress             : Long,
@@ -54,7 +54,7 @@ data class ActualAudioState(
             is ExpectedAudioState -> {
                 val progressTolerance = 10000L
 
-                if (audios != other.audios) return false
+                if (items != other.items) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -66,7 +66,7 @@ data class ActualAudioState(
             is ActualAudioState -> {
                 val progressTolerance = 10000L
 
-                if (audios != other.audios) return false
+                if (items != other.items) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -80,7 +80,7 @@ data class ActualAudioState(
     }
 
     override fun hashCode(): Int {
-        var result = audios.hashCode()
+        var result = items.hashCode()
         result = 31 * result + index
         result = 31 * result + paused.hashCode()
         result = 31 * result + ((((progress+10000)/20000)+1.0).toInt()*20000).hashCode()
@@ -95,7 +95,7 @@ data class ActualAudioState(
 }
 
 data class ExpectedAudioState(
-    val audios: List<ExpectedAudioItem>,
+    val items: List<ExpectedAudioItem>,
     val index: Int,
     val paused: Boolean,
     val progress: Long,
@@ -113,7 +113,7 @@ data class ExpectedAudioState(
             is ExpectedAudioState -> {
                 val progressTolerance = 10000L
 
-                if (audios != other.audios) return false
+                if (items != other.items) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -125,7 +125,7 @@ data class ExpectedAudioState(
             is ActualAudioState -> {
                 val progressTolerance = 10000L
 
-                if (audios != other.audios) return false
+                if (items != other.items) return false
                 if (index != other.index) return false
                 if (paused != other.paused) return false
                 if (progress + progressTolerance < other.progress ||
@@ -139,7 +139,7 @@ data class ExpectedAudioState(
     }
 
     override fun hashCode(): Int {
-        var result = audios.hashCode()
+        var result = items.hashCode()
         result = 31 * result + index
         result = 31 * result + paused.hashCode()
         result = 31 * result + ((((progress+10000)/20000)+1.0).toInt()*20000).hashCode()
