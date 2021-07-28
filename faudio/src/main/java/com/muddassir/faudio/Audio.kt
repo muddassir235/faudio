@@ -1,6 +1,7 @@
 package com.muddassir.faudio
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
@@ -19,16 +20,20 @@ import com.muddassir.faudio.downloads.addDownload
 import com.muddassir.faudio.downloads.dependencyProvider
 import com.muddassir.faudio.downloads.resume
 
-class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null) {
+class Audio(private val context: Context, uris: List<Uri> = emptyList(), lifecycleOwner: LifecycleOwner? = null) {
     private val scope: CoroutineScope = lifecycleOwner?.lifecycleScope
         ?: (context as? AppCompatActivity)?.lifecycleScope ?: GlobalScope
 
-    private var producer = buildAudioProducer()
+    private var producer = buildAudioProducer().apply {
+        setUris(uris)
+        seekTo(0, 0)
+    }
 
     private val audioDownloads = AudioDownloads(context, lifecycleOwner)
     private val focusManager = buildFocusManager()
 
-    private val _state = MutableLiveData<ActualAudioState>()
+    private val _state = MutableLiveData(
+        expectedToActualState(ExpectedAudioState.defaultStateWithUris(uris)))
     val state: LiveData<ActualAudioState> = _state
 
     init {
@@ -130,6 +135,19 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         return state.value?.equals(newState) == true
     }
 
+    infix fun shouldPerform(procedure:suspend Audio.() -> Unit) {
+        scope.launch { this@Audio.procedure() }
+    }
+
+    infix fun should(procedure: (ActualAudioState) -> ExpectedAudioState) {
+        scope.launch { state.value?.change(procedure)?.let { setState(it) } }
+    }
+
+    suspend infix fun needsTo(action: (ActualAudioState) -> ExpectedAudioState): Boolean {
+        val newState = this.state.value?.change(action) ?: return false
+        return this.setState(newState)
+    }
+
     fun setStateAsync(newState: ExpectedAudioState, callback: ((Boolean)->Unit)? = null) {
         flow {
             emit(setState(newState))
@@ -138,14 +156,9 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         }.launchIn(scope)
     }
 
-    suspend infix fun should(action: (ActualAudioState) -> ExpectedAudioState): Boolean {
-        val newState = this.state.value?.change(action) ?: return false
-        return this.setState(newState)
-    }
-
     fun changeStateAsync(action: (ActualAudioState) -> ExpectedAudioState, callback: ((Boolean)->Unit)? = null) {
         flow {
-            emit(should(action))
+            emit(needsTo(action))
         }.onEach {
             callback?.invoke(it)
         }.launchIn(scope)
@@ -174,6 +187,7 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
             },
             this.producer.currentIndex,
             !this.producer.started,
+            this.producer.buffering,
             this.producer.currentPosition,
             this.producer.speed,
             this.producer.bufferedPosition,

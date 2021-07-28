@@ -35,6 +35,7 @@ class TestAudioFunctions {
             items = audios,
             index =0,
             paused = true,
+            buffering = false,
             progress =0L,
             speed = 1.0f,
             bufferedPosition = 0L,
@@ -105,12 +106,13 @@ class TestAudioFunctions {
         val modifiedActualState = ActualAudioState(
             audioState.items,
             audioState.index,
-            false,
+            paused = false,
+            buffering = false,
             audioState.progress,
             audioState.speed,
             audioState.bufferedPosition,
             audioState.currentIndexDuration,
-            false,
+            stopped = false,
             audioState.error
         )
 
@@ -135,12 +137,13 @@ class TestAudioFunctions {
         val modifiedActualState = ActualAudioState(
             audioState.items,
             audioState.index,
-            false,
+            paused = false,
+            buffering = false,
             audioState.progress,
             audioState.speed,
             audioState.bufferedPosition,
             audioState.currentIndexDuration,
-            false,
+            stopped = false,
             audioState.error
         )
 
@@ -203,8 +206,9 @@ class TestAudioFunctions {
     fun testPrev() {
         val modifiedActualState = ActualAudioState(
             audioState.items,
-            3,
+            index = 3,
             audioState.paused,
+            buffering = false,
             audioState.progress,
             audioState.speed,
             audioState.bufferedPosition,
@@ -234,8 +238,9 @@ class TestAudioFunctions {
     fun testPrevAndDownload() {
         val modifiedActualState = ActualAudioState(
             audioState.items,
-            3,
+            index = 3,
             audioState.paused,
+            buffering = false,
             audioState.progress,
             audioState.speed,
             audioState.bufferedPosition,
@@ -341,7 +346,8 @@ class TestAudioFunctions {
             audioState.items,
             audioState.index,
             audioState.paused,
-            10000L,
+            buffering = false,
+            progress = 10000L,
             audioState.speed,
             audioState.bufferedPosition,
             audioState.currentIndexDuration,

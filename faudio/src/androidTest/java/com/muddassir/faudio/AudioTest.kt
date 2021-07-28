@@ -43,53 +43,53 @@ class AudioTest {
     @Test
     @Repeat(repetitions)
     fun testAudioStopStart() = afterAudioStart {
-        assertTrue(audio should stop)
-        assertTrue(audio should start)
+        assertTrue(audio needsTo stop)
+        assertTrue(audio needsTo start)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioStartPause() = afterAudioStart {
-        assertTrue(audio should pause)
+        assertTrue(audio needsTo pause)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioPauseStart() = afterAudioStart {
-        assertTrue(audio should pause)
-        assertTrue(audio should start)
+        assertTrue(audio needsTo pause)
+        assertTrue(audio needsTo start)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioPauseStop() = afterAudioStart {
-        assertTrue(audio should pause)
-        assertTrue(audio should stop)
+        assertTrue(audio needsTo pause)
+        assertTrue(audio needsTo stop)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioStartStop() = afterAudioStart {
-        assertTrue(audio should stop)
+        assertTrue(audio needsTo stop)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioNext() = afterAudioStart {
-        assertTrue(audio should moveToNext)
+        assertTrue(audio needsTo moveToNext)
     }
 
 
     @Test
     @Repeat(repetitions)
     fun testAudioPrev() = afterAudioStart {
-        assertTrue(audio should moveToPrev)
+        assertTrue(audio needsTo moveToPrev)
     }
 
     @Test
     @Repeat(repetitions)
     fun testAudioSeekTo() = afterAudioStart {
-        assertTrue(audio should {
+        assertTrue(audio needsTo {
             seekTo(it, 100000)
         })
     }
@@ -97,7 +97,7 @@ class AudioTest {
     @Test
     @Repeat(repetitions)
     fun testMoveToIndex() = afterAudioStart {
-        assertTrue(audio should {
+        assertTrue(audio needsTo {
             moveToIndex(it, 2)
         })
     }
@@ -105,7 +105,7 @@ class AudioTest {
     @Test
     @Repeat(repetitions)
     fun testRestart() = afterAudioStart {
-        assertTrue(audio should restart)
+        assertTrue(audio needsTo restart)
     }
 
     @Test
@@ -118,36 +118,32 @@ class AudioTest {
                 "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-0.mp3"
             )
 
-            background {
-                assertTrue(audio should {
-                    ExpectedAudioState(
-                        otherUris.map { uri -> ExpectedAudioItem(uri, false) },
-                        it.index,
-                        it.paused,
-                        0,
-                        it.speed,
-                        it.stopped
-                    )
-                })
-            }
+            assertTrue(audio needsTo {
+                ExpectedAudioState(
+                    otherUris.map { uri -> ExpectedAudioItem(uri, false) },
+                    it.index,
+                    it.paused,
+                    0,
+                    it.speed,
+                    it.stopped
+                )
+            })
         }
     }
 
     private fun afterAudioStart(task: (suspend (Unit)->Unit)) {
         runOnMainThread {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
-            audio = Audio(context)
 
-            val uris = uris(
+            audio = listOf(
                 "https://audio-samples.github.io/samples/mp3/blizzard_biased/sample-5.mp3",
                 "https://www.guggenheim.org/wp-content/uploads/2018/02/110443.mp3",
                 "https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-1.mp3"
-            )
+            ) asAudioWith context
 
-            background {
-                assertTrue(audio.setState(ExpectedAudioState.defaultStateWithUris(uris)))
-                assertTrue(audio should start)
-                assertTrue(audio should moveToNext)
+            audio shouldPerform {
+                assertTrue(audio needsTo start)
+                assertTrue(audio needsTo moveToNext)
                 delay(5000)
                 task.invoke(Unit)
             }

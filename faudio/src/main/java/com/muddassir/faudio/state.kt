@@ -36,6 +36,7 @@ data class ActualAudioState(
     val items                : List<ActualAudioItem>,
     val index                : Int,
     val paused               : Boolean,
+    val buffering            : Boolean,
     val progress             : Long,
     val speed                : Float,
     val bufferedPosition     : Long,

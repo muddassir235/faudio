@@ -34,6 +34,7 @@ class TestAudioStateChangeTypes {
             items = audios,
             index = 0,
             paused = true,
+            buffering = false,
             progress =0L,
             speed = 1.0f,
             bufferedPosition = 0L,
@@ -130,6 +131,7 @@ class TestAudioStateChangeTypes {
             emptyList(),
             audioState.index,
             audioState.paused,
+            audioState.buffering,
             audioState.progress,
             audioState.speed,
             audioState.bufferedPosition,
@@ -149,12 +151,13 @@ class TestAudioStateChangeTypes {
             },
             expectedState.index,
             expectedState.paused,
+            buffering = false,
             expectedState.progress,
             expectedState.speed,
-            0L,
-            0L,
+            bufferedPosition = 0L,
+            currentIndexDuration = 0L,
             expectedState.stopped,
-            null
+            error = null
         )
     }
 }

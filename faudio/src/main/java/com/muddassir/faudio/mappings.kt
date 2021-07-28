@@ -14,6 +14,7 @@ val expectedToActualState: (ExpectedAudioState) -> ActualAudioState = {
         it.items.map { item -> ActualAudioItem(item.uri, item.download, false, 0.0f) },
         it.index,
         it.paused,
+        false,
         it.progress,
         it.speed,
         0L,
