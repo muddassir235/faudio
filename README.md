@@ -70,6 +70,8 @@ audio shouldPerform {
     this needsTo download
     this needsTo start
     this needsTo shuffle
+
+    val success = this needsTo moveToNext // Check status if required
     .
     .
     .
