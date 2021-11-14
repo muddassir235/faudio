@@ -10,10 +10,6 @@ Android Audio Library, leaning towards a functional programming style, written i
 
 ## Requirements
 * Android 5+
-* Lifecycle Runtime
-    ```groovy
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:$lastest_version'
-    ```
 
 ## Add Dependencies
 Add the following in your project level build.gradle
@@ -27,7 +23,7 @@ allprojects {
 and the following in your app level build.gradle
 ```groovy
 dependencies {
-    implementation 'com.github.muddassir235:faudio:2.0'
+    implementation 'com.github.muddassir235:faudio:2.1'
 }
 ```
 
@@ -41,6 +37,11 @@ val audio = listOf(
 ) asAudioWith(this)
 
 audio should (start then download)
+```
+
+You can optionally provide the lifecycleOwner if `this` is not an AppCompatActivity and you want to have your own lifecycleOwner.
+```kotlin
+val audio = Audio(context = this, lifecycleOwner = yourLifecycleOwner)
 ```
 
 ### Available audio actions
