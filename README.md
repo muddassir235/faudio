@@ -140,12 +140,18 @@ audio.stateDiff.observe(lifecycleScope) { diff ->
 The following are the available state change types
 ```kotlin
 AudioStateChangeTypes.START
+AudioStateChangeTypes.START_AND_DOWNLOAD
+AudioStateChangeTypes.DOWNLOAD_CURRENT
 AudioStateChangeTypes.PAUSE
 AudioStateChangeTypes.STOP
 AudioStateChangeTypes.NEXT
+AudioStateChangeTypes.NEXT_AND_DOWNLOAD
 AudioStateChangeTypes.PREV
+AudioStateChangeTypes.PREV_AND_DOWNLOAD
 AudioStateChangeTypes.SEEK
 AudioStateChangeTypes.MOVE_TO_INDEX
+AudioStateChangeTypes.MOVE_TO_INDEX_AND_DOWNLOAD
+AudioStateChangeTypes.DOWNLOAD_INDEX
 AudioStateChangeTypes.RESTART
 AudioStateChangeTypes.URIS_CHANGED
 AudioStateChangeTypes.UNCHANGED
