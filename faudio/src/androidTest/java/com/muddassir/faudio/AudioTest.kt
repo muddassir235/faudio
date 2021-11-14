@@ -114,7 +114,7 @@ class AudioTest {
         afterAudioStart {
             val otherUris = uris(
                 "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-5.mp3",
-                "https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-0.mp3",
+                "https://ia800500.us.archive.org/5/items/aesop_fables_volume_one_librivox/fables_01_15_aesop.mp3",
                 "https://audio-samples.github.io/samples/mp3/blizzard_unconditional/sample-0.mp3"
             )
 
@@ -137,7 +137,7 @@ class AudioTest {
 
             audio = listOf(
                 "https://audio-samples.github.io/samples/mp3/blizzard_biased/sample-5.mp3",
-                "https://www.guggenheim.org/wp-content/uploads/2018/02/110443.mp3",
+                "https://ia800500.us.archive.org/5/items/aesop_fables_volume_one_librivox/fables_01_00_aesop.mp3",
                 "https://audio-samples.github.io/samples/mp3/blizzard_primed/sample-1.mp3"
             ) asAudioWith context
 
