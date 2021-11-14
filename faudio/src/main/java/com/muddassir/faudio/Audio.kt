@@ -1,61 +1,93 @@
 package com.muddassir.faudio
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import com.muddassir.faudio.FocusManager.FocusAudioAction.*
+import com.muddassir.faudio.downloads.*
+import com.muddassir.faudio.downloads.AudioDownloads
+import com.muddassir.faudio.downloads.addDownload
+import com.muddassir.faudio.downloads.dependencyProvider
+import com.muddassir.faudio.downloads.resume
 
-class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null) {
+class Audio(private val context: Context, uris: List<Uri> = emptyList(), lifecycleOwner: LifecycleOwner? = null) {
     private val scope: CoroutineScope = lifecycleOwner?.lifecycleScope
         ?: (context as? AppCompatActivity)?.lifecycleScope ?: GlobalScope
 
-    private var ap = AudioProducerBuilder(context).build()
-    private val fm = FocusManager(context) {
-        when(it) {
-            STOP -> ap.stop()
-            PAUSE -> ap.pause()
-            RESUME -> ap.resume()
-        }
+    private var producer = buildAudioProducer().apply {
+        setUris(uris)
+        seekTo(0, 0)
     }
 
-    private val _state = MutableLiveData<ActualAudioState>()
+    private val audioDownloads = AudioDownloads(context, lifecycleOwner)
+    private val focusManager = buildFocusManager()
+
+    private val _state = MutableLiveData(
+        expectedToActualState(ExpectedAudioState.defaultStateWithUris(uris)))
     val state: LiveData<ActualAudioState> = _state
 
     init {
         trackProgress()
     }
 
+    private fun buildAudioProducer(): AudioProducer {
+        return  AudioProducerBuilder(context).setMediaSourceFactory(
+            DefaultMediaSourceFactory(dependencyProvider(context).cacheDataSourceFactory)
+        ).build()
+    }
+
+    private fun buildFocusManager(): FocusManager {
+        return FocusManager(context) {
+            when(it) {
+                STOP -> producer.stop()
+                PAUSE -> producer.pause()
+                RESUME -> producer.resume()
+            }
+        }
+    }
+
     suspend fun setState(newState: ExpectedAudioState): Boolean {
         withContext(Dispatchers.Main) {
-            val currState = ap.audioState
+            val currState = audioState
 
             // uris
-            if (!newState.uris.contentEquals(currState.uris)) {
-                ap.setUris(newState.uris)
-                ap.seekTo(newState.index, 0)
+            if (newState.items != currState.items) {
+                producer.setUris(newState.items.map { it.uri })
+                producer.seekTo(newState.index, 0)
+            }
+
+            // download
+            currState.items.zip(newState.items).forEach {
+                if(!it.first.download && it.second.download) {
+                    audioDownloads should ({ ds: ActualDownloadState ->
+                        addDownload(ds, it.second.uri)
+                    } then resume)
+                }
             }
 
             // stopped
             if (newState.stopped != currState.stopped) {
                 if (newState.stopped) {
-                    ap.release()
+                    producer.release()
 
-                    ap = AudioProducerBuilder(context).build()
-                    ap.setUris(newState.uris)
-                    ap.seekTo(newState.index, 0)
+                    producer = buildAudioProducer()
+                    producer.setUris(newState.items.map { it.uri })
+                    producer.seekTo(newState.index, 0)
                 } else {
                     if(newState.paused) {
-                        ap.pause()
+                        producer.pause()
                     } else {
-                        ap.startCheckFocus(fm.focused)
+                        producer.startCheckFocus(focusManager.focused)
                     }
                 }
             }
@@ -63,21 +95,21 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
             // paused
             if (newState.paused != currState.paused) {
                 if(newState.paused) {
-                    ap.pause()
+                    producer.pause()
                 } else {
-                    ap.startCheckFocus(fm.focused)
+                    producer.startCheckFocus(focusManager.focused)
                 }
             }
 
             // index, progress
             when {
-                newState.index != currState.index -> ap.seekTo(newState.index, newState.progress)
-                newState.progress != currState.progress -> ap.seekTo(newState.progress)
+                newState.index != currState.index -> producer.seekTo(newState.index, newState.progress)
+                newState.progress != currState.progress -> producer.seekTo(newState.progress)
             }
 
             // speed
             if (newState.speed != currState.speed) {
-                ap.setAudioSpeed(newState.speed)
+                producer.setAudioSpeed(newState.speed)
             }
         }
 
@@ -103,6 +135,19 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         return state.value?.equals(newState) == true
     }
 
+    infix fun shouldPerform(procedure:suspend Audio.() -> Unit) {
+        scope.launch { this@Audio.procedure() }
+    }
+
+    infix fun should(procedure: (ActualAudioState) -> ExpectedAudioState) {
+        scope.launch { state.value?.change(procedure)?.let { setState(it) } }
+    }
+
+    suspend infix fun needsTo(action: (ActualAudioState) -> ExpectedAudioState): Boolean {
+        val newState = this.state.value?.change(action) ?: return false
+        return this.setState(newState)
+    }
+
     fun setStateAsync(newState: ExpectedAudioState, callback: ((Boolean)->Unit)? = null) {
         flow {
             emit(setState(newState))
@@ -111,14 +156,9 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
         }.launchIn(scope)
     }
 
-    suspend fun changeState(action: (ActualAudioState) -> ExpectedAudioState): Boolean {
-        val newState = this.state.value?.change(action) ?: return false
-        return this.setState(newState)
-    }
-
     fun changeStateAsync(action: (ActualAudioState) -> ExpectedAudioState, callback: ((Boolean)->Unit)? = null) {
         flow {
-            emit(changeState(action))
+            emit(needsTo(action))
         }.onEach {
             callback?.invoke(it)
         }.launchIn(scope)
@@ -127,11 +167,35 @@ class Audio(private val context: Context, lifecycleOwner: LifecycleOwner? = null
     private fun trackProgress() = scope.launch {
         while (true) {
             withContext(Dispatchers.Main) {
-                _state.value = ap.audioState
+                _state.value = audioState
             }
             delay(200)
         }
     }
 
-    fun release() = this.ap.release()
+    private val audioState  : ActualAudioState get() {
+        return ActualAudioState(
+            this.producer.uris.map { uri ->
+                val download = audioDownloads.state.value?.downloads?.find { it.uri == uri }
+
+                ActualAudioItem(
+                    uri = uri,
+                    download= download != null,
+                    downloadPaused = audioDownloads.state.value?.paused == true,
+                    downloadProgress = download?.progress ?: 0f
+                )
+            },
+            this.producer.currentIndex,
+            !this.producer.started,
+            this.producer.buffering,
+            this.producer.currentPosition,
+            this.producer.speed,
+            this.producer.bufferedPosition,
+            this.producer.duration,
+            this.producer.stopped,
+            this.producer.error
+        )
+    }
+
+    fun release() = this.producer.release()
 }

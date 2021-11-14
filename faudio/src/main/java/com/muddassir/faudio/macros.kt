@@ -7,24 +7,16 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 
 /**
- * Converts ArrayList of string uris/urls/file paths to Uris
- */
-internal fun ArrayList<String>.toUris(): Array<Uri> {
-    return Array(size) { Uri.parse(get(it)) }
-}
-
-/**
- * Converts Array of string uris/urls/file paths to Uris
- */
-internal fun Array<String>.toUris(): Array<Uri> {
-    return Array(size) { Uri.parse(this[it]) }
-}
-
-/**
  * Converts string uris/urls/file paths arguments to Uris
  */
-fun uris(vararg uriStrings: String): Array<Uri> {
-    return Array(uriStrings.size) { Uri.parse(uriStrings[it]) }
+fun uris(vararg uriStrings: String): List<Uri> {
+    return uriStrings.map { Uri.parse(it) }
+}
+
+fun audios(vararg uriStrings: String): List<ActualAudioItem> {
+    return Array(uriStrings.size) { Uri.parse(uriStrings[it]) }.map {
+        ActualAudioItem(it, false, false, 0f)
+    }
 }
 
 internal fun AudioManager.requestFocus(focusChangeListener: AudioManager.OnAudioFocusChangeListener)

@@ -30,14 +30,13 @@ dependencies {
 ## Use The Library
 Create an audio object
 ```kotlin
-val uris = uris(
-   "https://site.com/audio1.mp3",
-   "https://site.com/audio2.mp3",
-   "https://site.com/audio3.mp3"
-)
+val audio = listOf(
+    "https://site.com/audio1.mp3",
+    "https://site.com/audio2.mp3",
+    "https://site.com/audio3.mp3"
+) asAudioWith(this)
 
-val audio = Audio(context = this)
-audio.setStateAsync(ExpectedAudioState.defaultStateWithUris(uris))
+audio should (start then download)
 ```
 
 You can optionally provide the lifecycleOwner if `this` is not an AppCompatActivity and you want to have your own lifecycleOwner.
@@ -48,61 +47,71 @@ val audio = Audio(context = this, lifecycleOwner = yourLifecycleOwner)
 ### Available audio actions
 Perform any common action on your audio
 
-Using coroutines
-```kotlin
-lifecycleScope.launch {
-    // The changeState method returns if the operation was successful.
-    val success = audio.changeState(start)
-    audio.changeState(pause)
-    audio.changeState(stop)
-    audio.changeState(next)
-    audio.changeState(prev)
-    audio.changeState(restart)
-    audio.changeState(shuffle)
-    audio.changeState {
-        seekTo(it, 60000)
-    }
-    audio.changeState {
-        moveToIndex(it, 3)
-    }
-}
-```
-
 On the main thread
 ```kotlin
+audio should start
+audio should pause
+audio should stop
+audio should moveToNext
+audio should moveToPrev
+.
+.
+.
+
+// If status of the action (success or failure) is required use the following
 audio.changeStateAsync(start) { success ->
     // Check the operation completion status if required.
 }
-audio.changeStateAsync(pause)
-audio.changeStateAsync(stop)
-audio.changeStateAsync(next)
-audio.changeStateAsync(prev)
-audio.changeStateAsync(restart)
-audio.changeStateAsync(shuffle)
-audio.changeStateAsync({
-    seekTo(it, 60000)
-})
-audio.changeStateAsync({
-    moveToIndex(it, 3)
-})
+```
+
+Using coroutines
+```kotlin
+audio shouldPerform {
+    // suspend methods
+    this needsTo download
+    this needsTo start
+    this needsTo shuffle
+
+    val success = this needsTo moveToNext // Check status if required
+    .
+    .
+    .
+}
 ```
 
 ### Custom actions
 
 Perform a custom action on your audio using a lambda
+
+Main thread
 ```kotlin
-audio.changeState{ actualState ->
-  // Perform a custom action based on the current state of the audio.
-  // e.g. This action flips the paused state of the audio (so if its paused it gets started, if its start it gets paused)
-  // Any similar custom action can be performed
-  ExpectedAudioState(
-    uris = actualState.uris,
-    index = /* new index */,
-    paused = /* should it be paused */,
-    progress = /* new progress */,
-    speed = /* updated speed */,
-    stopped = /* should it stop */
-  )
+audio should { actualState ->
+    // Your own custom action of the audio
+    ExpectedAudioState(
+        uris = actualState.uris,
+        index = /* new index */,
+        paused = /* should it be paused */,
+        progress = /* new progress */,
+        speed = /* updated speed */,
+        stopped = /* should it stop */
+    )
+}
+```
+
+Coroutines
+```kotlin
+audio shouldPerform {
+    this needsTo {
+        // Your own custom action of the audio
+        ExpectedAudioState(
+            uris = actualState.uris,
+            index = /* new index */,
+            paused = /* should it be paused */,
+            progress = /* new progress */,
+            speed = /* updated speed */,
+            stopped = /* should it stop */
+        )
+    }
 }
 ```
 ### Observe state
@@ -110,7 +119,7 @@ Observe the audio state or state diffs on every change of state.
 
 State changes
 ```kotlin
-audio.state.observer(lifecycleScope) { actualState ->
+audio.state.observe(lifecycleScope) { actualState ->
     // Your logic here
     // Fields available...
     // actualState.uris, actualState.index, actualState.paused, actualState.progress
@@ -121,7 +130,7 @@ audio.state.observer(lifecycleScope) { actualState ->
 
 State diffs
 ```kotlin
-audio.stateDiff.observer(lifecycleScope) { diff ->
+audio.stateDiff.observe(lifecycleScope) { diff ->
     // Your logic here
     // Fields available...
     // diff.prev Previous state
@@ -132,12 +141,18 @@ audio.stateDiff.observer(lifecycleScope) { diff ->
 The following are the available state change types
 ```kotlin
 AudioStateChangeTypes.START
+AudioStateChangeTypes.START_AND_DOWNLOAD
+AudioStateChangeTypes.DOWNLOAD_CURRENT
 AudioStateChangeTypes.PAUSE
 AudioStateChangeTypes.STOP
 AudioStateChangeTypes.NEXT
+AudioStateChangeTypes.NEXT_AND_DOWNLOAD
 AudioStateChangeTypes.PREV
+AudioStateChangeTypes.PREV_AND_DOWNLOAD
 AudioStateChangeTypes.SEEK
 AudioStateChangeTypes.MOVE_TO_INDEX
+AudioStateChangeTypes.MOVE_TO_INDEX_AND_DOWNLOAD
+AudioStateChangeTypes.DOWNLOAD_INDEX
 AudioStateChangeTypes.RESTART
 AudioStateChangeTypes.URIS_CHANGED
 AudioStateChangeTypes.UNCHANGED
